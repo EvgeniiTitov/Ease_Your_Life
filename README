@@ -1,0 +1,12 @@
+Folder sorted:
+
+Commands:
+python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\Folder_sorter.py --folder=D:\Desktop\Reserve_NNs\IMAGES_ROW_DS\
+Sorted_Cropped_Frames\Test_source --classes pole isolator --save_path D:\Desktop\Reserve_NNs\IMAGES_ROW_DS\Sorted_Cropped_Frames\Poles
+D:\Desktop\Reserve_NNs\IMAGES_ROW_DS\Sorted_Cropped_Frames\Isolators --delete=True
+
+Arguments:
+--folder= path to source folder
+--classes classes of objects you'd like to have your images  split
+--save_path paths where to save images
+--delete=True (default=False) Delete images from source folder after processing
