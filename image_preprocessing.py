@@ -27,9 +27,9 @@ def unsharp():
 def mean(image):
     img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV) # Convert to HSV. OpenCV opens in BGR
     figure_size = 9
-    img = cv2.blur(img, (figure_size, figure_size))
-    img = cv2.cvtColor(img, cv2.COLOR_HSV2RGB)
-    return img
+    new_img = cv2.blur(img, (figure_size, figure_size))
+    new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
+    return new_img
 
 def gaussian():
     pass
@@ -47,8 +47,8 @@ def crimmins():
     pass
 
 def initialize_modifications(save_path, images, new_size, modifications):
-    available_functions = [grayscale, binary, unsharp, mean,
-                           gaussian, median, conservative, laplacian, crimmins]
+    available_functions = [binary, unsharp, mean, gaussian,
+                           median, conservative, laplacian, crimmins, grayscale]
 
     for image_path in images:
         image = cv2.imread(image_path)
@@ -92,7 +92,7 @@ def main():
                                                     if any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG"])]
     new_size = tuple()
     if arguments.resize:
-        new_size = tuple(int(e) for e in arguments.resize.split(','))
+        new_size = tuple(int(e) for e in arguments.resize.split(','))  # width, height
 
     modifications = list()
     if arguments.filter:
