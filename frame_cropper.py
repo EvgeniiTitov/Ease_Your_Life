@@ -27,7 +27,7 @@ def crop_frames(cap, save_path, frame_N, output_name):
 
         cv2.imshow(window_name, frame)
 
-        if frame_counter < 700:  # Skip first section of the video
+        if frame_counter < 200:  # Skip first section of the video
             frame_counter += 1
             print(frame_counter)
             continue
@@ -57,7 +57,7 @@ def main():
             sys.exit()
         output_name = os.path.basename(video_path)[:-4]
         cap = cv2.VideoCapture(video_path)
-        crop_frames(cap, save_path, once_in_N_frames, output_name)
+        crop_frames(cap, save_path, int(once_in_N_frames), output_name)
 
     elif arguments.folder:
         #To process all videos in a folder
@@ -70,7 +70,7 @@ def main():
             video_path = os.path.join(arguments.folder, video)
             output_name = video[:-4]
             cap = cv2.VideoCapture(video_path)
-            crop_frames(cap, save_path, once_in_N_frames, output_name)
+            crop_frames(cap, save_path, int(once_in_N_frames), output_name)
 
     else:
         print("Incorrect input. Giving up")

@@ -5,8 +5,8 @@ import argparse
 import shutil
 
 parser = argparse.ArgumentParser(description = "Folder parser")
-parser.add_argument('--folder', help="Path to folder where to take images from")
-parser.add_argument('--classes', nargs='+', help="Classes that we want to split images in")
+parser.add_argument('--folder', help="Source folder with images to split")
+parser.add_argument('--classes', nargs='+', help="Classes we want to split images in")
 parser.add_argument('--save_path', nargs='+', help="Path where to save an image for each class")
 parser.add_argument('--delete', default=False, help="Delete an image after its been processed")
 arguments = parser.parse_args()
@@ -32,7 +32,7 @@ def relocate_image(path_to_image, class_path, window_name):
                 shutil.copy(path_to_image, new_path)
             # If Q gets pressed, go process the next image
             elif key == ord('q'):
-                if delete:
+                if arguments.delete:
                     print(f"Image {image_name} has been deleted")
                     os.remove(path_to_image)
                 return
@@ -45,22 +45,19 @@ def relocate_image(path_to_image, class_path, window_name):
                 sys.exit()
 
 def main():
-    global delete
-    # Check if user wants to have images in source folder deleted after they were processed
-    delete = arguments.delete
     # Process the source folder provided
     if not arguments.folder:
-        print("No folder has been provided. Giving up")
+        print("No source folder has been provided. Giving up")
         sys.exit()
     if not os.path.isdir(arguments.folder):
-        print("The folder provided is not actually a folder! Try again!")
+        print("The source folder provided is not actually a folder! Try again.")
         sys.exit()
-    path_to_folder = arguments.folder
+    source_folder = arguments.folder
     # Process classes that a user wants to have images split into
     if not arguments.classes:
         print("No classes have been provided. Giving up")
         sys.exit()
-    classes = []
+    classes = list()
     for index, element in enumerate(arguments.classes, start=1):
         print("Press", index, "to save images for class", element)
         classes.append((index,element))
@@ -82,10 +79,10 @@ def main():
     window_name = "Spliting images into different datasets"
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     # Traverse over all images in the source folder, for each call relocating function
-    for filename in os.listdir(path_to_folder):
+    for filename in os.listdir(source_folder):
         if not any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".JPEG", ".jpeg", ".png", ".PNG"]):
             continue
-        path_to_image = os.path.join(path_to_folder, filename)
+        path_to_image = os.path.join(source_folder, filename)
         relocate_image(path_to_image, class_save_path, window_name)
     # Once all images have been processed, exit the script
     print("All images have been processed!")
