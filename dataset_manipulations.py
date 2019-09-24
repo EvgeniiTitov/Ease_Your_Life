@@ -12,7 +12,6 @@ Improvements:
 3) If empty folder was provided? endless try except is no good. Think how you can fix it.
 4) When adding images to existing file, they can already start from some index. Ask what index to start with
 5) Changing extension function. Can be combined with the main one?
-6) GET RID OR THOSE ENDLESS TRY EXCEPT. IS ONE ENOUGH AT THE BEGINNING OF THE MAIN LOOP?
 
 1) Count number of files in a folder plus return list with paths to all elements (file index, extension, path)
 2) Change extensions
