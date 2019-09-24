@@ -1,4 +1,9 @@
-# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\image_preprocessing.py --image=D:\Desktop\Test_Dir\00164.jpg --save_path=D:\Desktop\Test_Dir\Modified --filter=1 --resize=1000,1000
+# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\image_preprocessing.py --image=D:\Desktop\Test_Dir\228.jpg --save_path=D:\Desktop\Test_Dir\Modified --filter=1 --resize=1500,1000
+
+# Allow a user to specify the figure size (kernel size). Set the default one to be something. Make it a global variable
+# Canny Edge Detection - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
+# Consider template matching for isolator rotation?
+
 import os
 import sys
 import argparse
@@ -10,6 +15,7 @@ parser.add_argument("--image", help="Path to an image")
 parser.add_argument("--save_path", help="Path to a folder to save an image processed")
 parser.add_argument("--resize", help="Resize image to a new width, height size")
 parser.add_argument("--filter", help="Perform some image modifications")
+#parser.add_argument()
 arguments = parser.parse_args()
 
 
@@ -31,11 +37,19 @@ def mean(image):
     new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
     return new_img
 
-def gaussian():
-    pass
+def gaussian(image):
+    figure_size = 9
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    new_img = cv2.GaussianBlur(img, (figure_size, figure_size), 0)
+    new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
+    return new_img
 
-def median():
-    pass
+def median(image):
+    figure_size = 9
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    new_img = cv2.medianBlur(img, figure_size)
+    new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
+    return new_img
 
 def conservative():
     pass
@@ -52,18 +66,14 @@ def initialize_modifications(save_path, images, new_size, modifications):
 
     for image_path in images:
         image = cv2.imread(image_path)
-
         if new_size:
             image = cv2.resize(image, new_size)
-
         if modifications:
             for function in available_functions:
                 if function.__name__ in modifications:  # get function's name
                     image = function(image)
-
         #cv2.imshow(window_name, image)
         #cv2.waitKey(0)
-
         name = os.path.basename(image_path)
         cv2.imwrite(os.path.join(save_path, name), image)
 
