@@ -15,14 +15,14 @@ parser.add_argument("--image", help="Path to an image")
 parser.add_argument("--save_path", help="Path to a folder to save an image processed")
 parser.add_argument("--resize", help="Resize image to a new width, height size")
 parser.add_argument("--filter", help="Perform some image modifications")
-#parser.add_argument()
+parser.add_argument("--kernel", default=9, help="Kernel size")
 arguments = parser.parse_args()
 
 
-def grayscale(image):
+def grayscale(image, kernel_size):
     """Converts image to grayscale. Returns the image converted"""
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    return gray
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return gray_image
 
 def binary():
     pass
@@ -30,24 +30,35 @@ def binary():
 def unsharp():
     pass
 
-def mean(image):
+def bilateral(image, kernel_size):
+    """Effective at noise removal while preserving edges. However, its slower compared to other filters, so be careful"""
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    new_image = cv2.bilateralFilter(img,9,75,75)
+    new_image = cv2.cvtColor(new_image, cv2.COLOR_HSV2BGR)
+    return new_image
+
+def mean(image, kernel_size):
+    """Takes the average of all pixels under kernel area and replaces the central element with this average.
+       Blurs image to remove noise. Smooths edges of the image."""
     img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV) # Convert to HSV. OpenCV opens in BGR
-    figure_size = 9
-    new_img = cv2.blur(img, (figure_size, figure_size))
+    new_img = cv2.blur(img, (kernel_size, kernel_size))
     new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
     return new_img
 
-def gaussian(image):
-    figure_size = 9
+def gaussian(image, kernel_size):
+    """Similar to mean but it involves a weighted average of the surrounding pixels and it has sigma parameter.
+       Gaussian filter blurs the edges but it does a better job of preserving them compared to the mean filter"""
     img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    new_img = cv2.GaussianBlur(img, (figure_size, figure_size), 0)
+    new_img = cv2.GaussianBlur(img, (kernel_size, kernel_size), 0)
     new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
     return new_img
 
-def median(image):
-    figure_size = 9
+def median(image, kernel_size):
+    """Calculates the median of the pixel intensities that surround the centre pixel in a NxN kernel. The median
+    pixel gets replaced with the new value. Does a better job of removing salt-n-pepper noise compared to the mean and
+    Gaussian filters. Preserves edges of an image but does not deal with speckle noise."""
     img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    new_img = cv2.medianBlur(img, figure_size)
+    new_img = cv2.medianBlur(img, kernel_size)
     new_img = cv2.cvtColor(new_img, cv2.COLOR_HSV2BGR)
     return new_img
 
@@ -60,21 +71,33 @@ def laplacian():
 def crimmins():
     pass
 
-def initialize_modifications(save_path, images, new_size, modifications):
+def initialize_modifications(save_path, images, new_size, modifications, kernel_size):
+    '''
+    :param save_path: path to save image(s) modified to
+    :param images:  paths to image(s) to modify
+    :param new_size: if specified, the new size to converts image(s) to
+    :param modifications: if specified, modifications to perform upon image(s)
+    :param kernel_size: if specified, kernel size
+    '''
     available_functions = [binary, unsharp, mean, gaussian,
-                           median, conservative, laplacian, crimmins, grayscale]
+                           median, bilateral, laplacian, crimmins, grayscale]
 
     for image_path in images:
+        # open an image
         image = cv2.imread(image_path)
+        # perform modifications
         if new_size:
             image = cv2.resize(image, new_size)
         if modifications:
             for function in available_functions:
                 if function.__name__ in modifications:  # get function's name
-                    image = function(image)
+                    image = function(image, kernel_size)
+
         #cv2.imshow(window_name, image)
         #cv2.waitKey(0)
-        name = os.path.basename(image_path)
+
+        # save the image modified. Include modifications performed to the image name
+        name = '_'.join(modifications)+'_'+os.path.basename(image_path)
         cv2.imwrite(os.path.join(save_path, name), image)
 
 def main():
@@ -106,13 +129,18 @@ def main():
 
     modifications = list()
     if arguments.filter:
-        modifications = [mod.lower().strip() for mod in input("Modifications: Grayscale, Binary, Unsharp, Mean, Gaussian, Median, Conservative, Laplacian, Crimmins: ").split()]
+        modifications = [mod.lower().strip() for mod in input("Modifications: Grayscale, Binary, Unsharp, Mean, Gaussian, Median, Bilateral, Laplacian, Crimmins or 0 (to exit): ").split(',')]
+
+    kernel_size = arguments.kernel
+
+    if '0' in modifications:
+        sys.exit()
 
     #window_name = "window_name"
     #cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
     if img_to_process:
-        initialize_modifications(save_path, img_to_process, new_size, modifications)
+        initialize_modifications(save_path, img_to_process, new_size, modifications, kernel_size)
     else:
         print("No images for modification have been found. Check your folder")
         sys.exit()
