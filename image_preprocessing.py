@@ -19,18 +19,28 @@ parser.add_argument("--kernel", default=9, help="Kernel size")
 arguments = parser.parse_args()
 
 
-def grayscale(image, kernel_size):
+def grayscale(image):
     """Converts image to grayscale. Returns the image converted"""
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return gray_image
 
-def binary():
-    pass
+def adaptive(image):
+    """Calculates the threshold for a small regions of the image. Give different thresholds for
+       different regions of the same image. Hence, better results for images with varying illumination"""
+    img = grayscale(image)
+    img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+    return img
+
+def thresholding(image):
+    """Image binarization. Doesn't work well for images with varying illumination"""
+    img = grayscale(image)
+    ret, img = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+    return img
 
 def unsharp():
     pass
 
-def bilateral(image, kernel_size):
+def bilateral(image):
     """Effective at noise removal while preserving edges. However, its slower compared to other filters, so be careful"""
     img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     new_image = cv2.bilateralFilter(img,9,75,75)
@@ -79,7 +89,7 @@ def initialize_modifications(save_path, images, new_size, modifications, kernel_
     :param modifications: if specified, modifications to perform upon image(s)
     :param kernel_size: if specified, kernel size
     '''
-    available_functions = [binary, unsharp, mean, gaussian,
+    available_functions = [adaptive, thresholding, unsharp, mean, gaussian,
                            median, bilateral, laplacian, crimmins, grayscale]
 
     for image_path in images:
@@ -91,7 +101,10 @@ def initialize_modifications(save_path, images, new_size, modifications, kernel_
         if modifications:
             for function in available_functions:
                 if function.__name__ in modifications:  # get function's name
-                    image = function(image, kernel_size)
+                    if function.__name__ in ["bilateral","grayscale","thresholding","adaptive"]:
+                        image = function(image)
+                    else:
+                        image = function(image, kernel_size)
 
         #cv2.imshow(window_name, image)
         #cv2.waitKey(0)
@@ -129,7 +142,9 @@ def main():
 
     modifications = list()
     if arguments.filter:
-        modifications = [mod.lower().strip() for mod in input("Modifications: Grayscale, Binary, Unsharp, Mean, Gaussian, Median, Bilateral, Laplacian, Crimmins or 0 (to exit): ").split(',')]
+        modifications = [mod.lower().strip() for mod in input("Modifications: Grayscale, Thresholding, "
+                                                              "Adaptive, Unsharp, Mean, Gaussian, "
+                                                              "Median, Bilateral, Laplacian, Crimmins or 0 (to exit): ").split(',')]
 
     kernel_size = arguments.kernel
 
