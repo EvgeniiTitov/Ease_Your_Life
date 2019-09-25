@@ -1,8 +1,12 @@
 # python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\image_preprocessing.py --image=D:\Desktop\Test_Dir\228.jpg --save_path=D:\Desktop\Test_Dir\Modified --filter=1 --resize=1500,1000
 
-# Allow a user to specify the figure size (kernel size). Set the default one to be something. Make it a global variable
-# Canny Edge Detection - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
-# Consider template matching for isolator rotation?
+# TO ADD:
+# Edge detection (Canny) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
+# 2D Convolution (Custom image filtering) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html
+# Image rotation - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_geometric_transformations/py_geometric_transformations.html
+# ! Contours (Important) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contour_features/py_contour_features.html
+# Histograms - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_histograms/py_histogram_equalization/py_histogram_equalization.html
+# Hough line for shape detection - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_houghlines/py_houghlines.html
 
 import os
 import sys
@@ -17,7 +21,6 @@ parser.add_argument("--resize", help="Resize image to a new width, height size")
 parser.add_argument("--filter", help="Perform some image modifications")
 parser.add_argument("--kernel", default=9, help="Kernel size")
 arguments = parser.parse_args()
-
 
 def grayscale(image):
     """Converts image to grayscale. Returns the image converted"""
