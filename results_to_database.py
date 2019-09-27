@@ -1,5 +1,5 @@
 # Represent DB as a class? methods - different commands! Attributes - its condition, status etc.
-
+# https://www.sqlitetutorial.net/sqlite-cheat-sheet/
 # python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\results_to_database.py
 
 import sqlite3
@@ -8,27 +8,28 @@ import sys
 default_path = r"C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\database.db"
 
 def insert_table():
-    pass
+    with connection:
+        cursor.execute(generate_SQL_command("INSERT"))
 
 def modify_table():
     pass
 
-def delete_table(name):
+def delete_table():
     '''
     Delete a table from the database
     '''
     with connection:
         try:
-            cursor.execute(f"""DROP TABLE {name}""")
-            print(f"The table {name} has been successfully deleted")
+            cursor.execute(generate_SQL_command("DELETETABLE"))
+            print(f"The table has been successfully deleted")
         except:
-            print(f"Error! The table {name} doesn't exist")
+            print(f"Error! Something went wrong")
 
-def confirm_tables():
+def list_tables():
     '''
     Returns list of tables. Confirm a table has been successfully created if it is in the list of tables
     '''
-    cursor.execute(generate_SQL_command("LIST_TABLES"))
+    cursor.execute(generate_SQL_command("LISTTABLES"))
     tables = cursor.fetchall()  # NOTE fetchall() fetches just once! Do it again and you end up with None
     if tables:
         print("Tables:", ', '.join(table[0] for table in tables))
@@ -36,18 +37,24 @@ def confirm_tables():
         print("There are no tables in the database")
     return tables # To see if we've got any tables (important for delete function)
 
-def create_table(*args):
+def create_table():
     '''
     Creates table(s)
     '''
-    for table in args:
-        try:
-            cursor.execute(table)
-        except sqlite3.OperationalError:
-            print(f"Failed to create the table {table}")
-            return
+    try:
+        cursor.execute(generate_SQL_command("CREATETABLE"))
+    except sqlite3.OperationalError:
+        print(f"Failed to create the table")
+        return
 
-    return confirm_tables()
+    return list_tables()
+
+def read_content():
+    try:
+        cursor.execute(generate_SQL_command("READCONTENT"))
+        print(cursor.description)
+    except sqlite3.OperationalError:
+        print("Failed to show the table")
 
 def generate_SQL_command(action):
     '''
@@ -68,8 +75,21 @@ def generate_SQL_command(action):
         piece_2 = ', '.join(columns)
         return piece_1 + piece_2 + ")"
 
-    if action == "LIST_TABLES":
+    if action == "DELETETABLE":
+        table_name = input("Enter table to delete: ")
+        return f"DROP TABLE {table_name}"
+
+    if action == "LISTTABLES":
         return "SELECT name FROM sqlite_master WHERE type = 'table'"
+
+    if action == "READCONTENT":
+        table_name = input("Enter table to show: ")
+        return f"SELECT name FROM {table_name}"
+
+    if action == "INSERT":
+        table_name = input("Enter table to insert in: ")
+        values_to_insert = input("Enter values to insert: ").split()
+        return f"INSERT INTO {table_name} VALUES ({', '.join(values_to_insert)})"
 
 def initialize_database(path_to_db=default_path):
     '''
@@ -98,20 +118,28 @@ def main():
         user_input = input("\nSelect action: CREATETABLE, LISTTABLES, DELETETABLE, INSERT, READ, DELETE, or EXIT: ")
 
         if user_input.upper().strip() == "CREATETABLE":
-            create_table(generate_SQL_command("CREATETABLE"))
+            create_table()
 
         elif user_input.upper().strip() == "LISTTABLES":
-            confirm_tables()
+            list_tables()
 
         elif user_input.upper().strip() == "DELETETABLE":
-            if confirm_tables():
-                delete_table(input("Select table to delete: "))
+            if list_tables():
+                delete_table()
+            else:
+                print("There are no tables")
 
         elif user_input.upper().strip() == "INSERT":
-            pass
+            if list_tables():
+                insert_table()
+            else:
+                print("There are no tables. You need to create one first!")
 
         elif user_input.upper().strip() == "READ":
-            pass
+            if list_tables():
+                read_content()
+            else:
+                print("There are no tables")
 
         elif user_input.upper().strip() == "DELETE":
             pass
@@ -125,6 +153,7 @@ def main():
 
         if input("\nWould you like to perform another operations? YES/NO: ").upper().strip() == "NO":
             print("See you!")
+            connection.close()
             sys.exit()
 
 if __name__ == "__main__":
