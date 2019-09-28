@@ -46,15 +46,16 @@ def create_table():
     except sqlite3.OperationalError:
         print(f"Failed to create the table")
         return
-
     return list_tables()
 
 def read_content():
     try:
         cursor.execute(generate_SQL_command("READCONTENT"))
-        print(cursor.description)
     except sqlite3.OperationalError:
         print("Failed to show the table")
+
+    names = [column[1] for column in cursor.fetchall()]
+    print(names)
 
 def generate_SQL_command(action):
     '''
@@ -84,10 +85,11 @@ def generate_SQL_command(action):
 
     if action == "READCONTENT":
         table_name = input("Enter table to show: ")
-        return f"SELECT name FROM {table_name}"
+        return f"PRAGMA TABLE_INFO({table_name})"
 
     if action == "INSERT":
         table_name = input("Enter table to insert in: ")
+        read_content()
         values_to_insert = input("Enter values to insert: ").split()
         return f"INSERT INTO {table_name} VALUES ({', '.join(values_to_insert)})"
 
@@ -107,13 +109,13 @@ def initialize_database(path_to_db=default_path):
 def main():
     global cursor, connection
     user_input = input("\nCreate or connect to existing DB? CREATE / EXISTING: ")
-
+    # INITIALIZE A DATABASE
     if user_input.upper().strip() == "CREATE":
         connection = initialize_database(input("Specify path to a new DB: "))
     else:
         connection = initialize_database()
     cursor = connection.cursor()
-
+    # INTERACTION WITH A USER:
     while True:
         user_input = input("\nSelect action: CREATETABLE, LISTTABLES, DELETETABLE, INSERT, READ, DELETE, or EXIT: ")
 
@@ -151,7 +153,7 @@ def main():
         else:
             print("Wrong input!")
 
-        if input("\nWould you like to perform another operations? YES/NO: ").upper().strip() == "NO":
+        if input("\nWould you like to perform another operation? YES/NO: ").upper().strip() == "NO":
             print("See you!")
             connection.close()
             sys.exit()
