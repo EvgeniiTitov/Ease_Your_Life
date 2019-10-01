@@ -1,4 +1,6 @@
-# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder=D:\Desktop\testing_directory --remove_lowres=1000 --name=1 --ext=1
+# One folder - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder=D:\Desktop\Test_Dir --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
+# Multiple folders - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder D:\Desktop\Test_Dir\Modified D:\Desktop\Test_Dir\Detections --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
+
 # Could possibly add resize function to bring all images to the same size.
 import os
 import cv2
@@ -6,8 +8,8 @@ import sys
 import argparse
 
 parser = argparse.ArgumentParser(description = "Dataset manipulations")
-parser.add_argument('--folder', help="Path to a folder with images to get modified")
-parser.add_argument('--image', help="Path to an image to get modified")
+parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder with images to get modified")
+parser.add_argument("-i", '--image', help="Path to an image to get modified")
 parser.add_argument('--save_path', help="Path where to save modified images")
 parser.add_argument('--ext', help="Changes extension to .jpg")
 parser.add_argument('--name', help="Renames images in ascending order")
@@ -42,14 +44,39 @@ def perform_modifications(images, save_path):
         counter += 1
     print("All images have been processed")
 
+def collect_all_images(folder, images):
+    exception = 0
+    for filename in os.listdir(folder):
+        filename_path = os.path.join(folder, filename)
+        if any(filename.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"]):
+            images.append(filename_path)
+        elif os.path.isdir(filename_path):
+            try:
+                collect_all_images(filename_path, images)
+            except:
+                exception += 1
+    return (images, exception)
+
+
 def main():
     images_to_modify = list()
     if arguments.folder:
-        if not os.path.isdir(arguments.folder):
-            print("What you've provided is not a folder")
-            sys.exit()
-        images_to_modify = [os.path.join(arguments.folder, image) for image in os.listdir(arguments.folder)\
-                                                            if any(image.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"])]
+        # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
+        if len(arguments.folder) > 1:
+            for folder in arguments.folder:
+                if not os.path.isdir(folder):
+                    print(f"\n{folder} is not a folder!")
+                    continue
+                images_to_modify += [os.path.join(folder, image) for image in os.listdir(folder)\
+                                                                        if any(image.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"])]
+        # Option 2: If only one folder provided - find all images in it including subfolders etc.
+        elif len(arguments.folder) == 1:
+            if not os.path.isdir(arguments.folder[0]):  # nargs returns a list
+                print("What you've provided is not a folder")
+                sys.exit()
+            images_to_modify, exceptions = collect_all_images(arguments.folder[0], images_to_modify)
+            print(f"All {len(images_to_modify)} images have been collected with {exceptions} exceptions")
+        # Check if any images have been collected
         if not images_to_modify:
             print("The folder provided doesn't contain any images. Double check!")
             sys.exit()
@@ -62,7 +89,14 @@ def main():
         print("You haven't provided a single source of images")
         sys.exit()
 
-    save_path = arguments.save_path if arguments.save_path else arguments.folder  # By default images get saved back to the source folder
+    if not arguments.save_path:
+        print("You haven't provided path to where save image(s) modified")
+        sys.exit()
+
+    save_path = arguments.save_path
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+
     perform_modifications(images_to_modify, save_path)
 
     # YOLO relative path
