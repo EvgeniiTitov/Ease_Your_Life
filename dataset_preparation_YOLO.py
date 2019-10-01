@@ -24,8 +24,8 @@ def relative_path_YOLO():
 
 def fix_naming_issues(images):
     '''
-    Some *** named some images in russian, which obviously led to inability to open and read those images.
-    Find images containing russian letters, rename them with some random names
+    Some *** named some images in russian, which obviously led to inability to open and work with those images.
+    Find images containing russian letters, rename them with some random names - numbers
     '''
     import random
     letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
@@ -113,19 +113,18 @@ def main():
     else:
         print("You haven't provided a single source of images")
         sys.exit()
-
+    # Launch a fixing function and exit upon completion
     if arguments.fix:
         fix_naming_issues(images_to_modify)
         sys.exit()
-
+    # Save path
     if not arguments.save_path:
         print("You haven't provided path to where save image(s) modified")
         sys.exit()
     save_path = arguments.save_path
     if not os.path.exists(save_path):
         os.mkdir(save_path)
-
-    # Shuffle list so that images coming from different classes are shuffled and spread
+    # Shuffle list so that images belonging to different classes are shuffled and spread evenly across dataset
     random.shuffle(images_to_modify)
     perform_modifications(images_to_modify, save_path)
 

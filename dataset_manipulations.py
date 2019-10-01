@@ -19,18 +19,10 @@ Improvements:
 
 '''
 import os
-import PIL
-from PIL import Image
-
-
-
-def strip_metadata(path_folder, path_save):
-    pass
-
 
 def QuickScriptToFixIssue(source, destination):
     #Not connected from main()
-    #To fix issue and find and relocate images that have already got their labels after crash. Took their txt files (1k size, not 0).
+    #To fix issue and find and relocate images that have already got their labels after a script crash. Took their txt files (1k size, not 0).
     names_to_relocate = []
     exception = 0
     for item in os.listdir(destination):
@@ -45,16 +37,13 @@ def QuickScriptToFixIssue(source, destination):
                 exception += 1
         else:
             continue
-
     print(f'Done with {exception} exception(s)')
-
 
 def copy_content():
     pass
 
 def initialize_copy_content():
     pass
-
 
 def move(folders, delete_folder = False):
     """
@@ -142,7 +131,6 @@ def initialize_move():
         print("Wrong input! Try again")
         return
 
-
 def change_extensions(folder, extensions):
     # Fixed. Bag. Must be replacing existing jpg images with newly converted images with the same names.
     # Logic can be done better. Check if extension is already jpg, skip this file. Plus when saving file new file as jpg we can select to keep the old name
@@ -167,7 +155,6 @@ def change_extensions(folder, extensions):
 
     print(f"\nDone changing extension.{i} files processed. {exception} exception(s) have been raised during the process.")
 
-
 def initialize_extension():
     """
     Changes extensions of all images in the folder provided to .jpg
@@ -181,15 +168,12 @@ def initialize_extension():
 
     change_extensions(source_folder, extensions)
 
-
-
 def shuffle_paths_to_images():
     container = []
     source = r'D:\Desktop\darknet-master\build\darknet\x64\data\obj'
     for item in os.listdir(source):
         container.append(item)
     pass
-
 
 def initialize_yolo():
     '''

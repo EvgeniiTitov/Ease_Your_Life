@@ -7,6 +7,7 @@
 # ! Contours (Important) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contour_features/py_contour_features.html
 # Histograms - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_histograms/py_histogram_equalization/py_histogram_equalization.html
 # Hough line for shape detection - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_houghlines/py_houghlines.html
+# METADATA CUT OFF IMPLEMENT HERE
 
 import os
 import sys

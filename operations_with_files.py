@@ -19,11 +19,10 @@ Long-term:
 + Using trees we could draw folders contents for explore method
 + Introduce custom Error (raise CustomError) to better understand where user fucked up
 
-+ Introduce some functions for data science and NN such as resizing images, making them GrayScale, normalizing, changing extension of images
- (not only to jpg, add different options) etc.
 """
 from collections import defaultdict
 import os
+import sys
 
 # SEARCH
 def search_file(filename, path = ('C:', 'D:')):
@@ -39,7 +38,7 @@ def search_file(filename, path = ('C:', 'D:')):
             #file_names - names of all files in there
             for file in file_names:
                 if filename in file:
-                    found_files.append((file, os.path.join(dir_path,file)))
+                    found_files.append((file, os.path.join(dir_path, file)))
             for directory in dir_names:
                 if filename in directory:
                     found_files.append((directory, os.path.join(dir_path, directory)))
@@ -70,8 +69,6 @@ def initialize_search():
             print(f'Found < {finding[0]} > at the path < {finding[1]} >')
     else:
         print('No file with this name has been found. Try again.')
-
-
 
 # DELETE
 def delete_file(path):
@@ -116,8 +113,6 @@ def initialize_delete():
         path = input("Enter path to the file to be deleted: ")
         delete_file(path)
 
-
-
 # RELOCATE / RENAME
 def relocate_file(file_name, new_NamePath):
     if os.path.exists(file_name):
@@ -142,8 +137,6 @@ def initialize_relocate():
     else:
         print("Cannot relocate nonexisting file. Try again!")
 
-
-
 # EXPLORE
 def explore_content(path, files_found):
     """
@@ -157,7 +150,7 @@ def explore_content(path, files_found):
 
         for filename in os.listdir(path):
             new_path = os.path.join(path, filename)
-            if '.' in filename: #File found. FIX THIS.
+            if '.' in filename: #File found. FIX - os.path.isfile(filename):
                 files_found[os.path.splitext(new_path)[-1].lower()].append(filename)
             else:
                 files_found['folder'].append(filename) #Folder found
@@ -177,13 +170,10 @@ def initialize_explore():
     for key, value in results.items():
         print(f'Extension: {key}, number of files: {len(results[key])}')
 
-
-
 def main():
     print("WELCOME TO THE FILE MANAGEMENT SCRIPT\n")
-    status = True
-    while status:
-        user_input = input("What would you like to do? EXPLORE / SEARCH / DELETE / RELOCATE: ")
+    while True:
+        user_input = input("What would you like to do? EXPLORE / SEARCH / DELETE / RELOCATE / EXIT: ")
         if user_input.upper().strip() == 'EXPLORE':
             initialize_explore()
         elif user_input.upper().strip() == 'SEARCH':
@@ -192,13 +182,17 @@ def main():
             initialize_delete()
         elif user_input.upper().strip() == 'RELOCATE':
             initialize_relocate()
+        elif user_input.upper().strip() == 'EXIT':
+            print("See you!")
+            sys.exit()
         else:
             print("Incorrect input. Please try again.")
+            continue
 
         user_in = input('\nWould you like to perform another operation? YES / NO: ')
         if user_in.upper().strip() == 'NO':
-            print('Thank you. See you!')
-            status = False
+            print("See you!")
+            break
 
 if __name__ == '__main__':
     main()
