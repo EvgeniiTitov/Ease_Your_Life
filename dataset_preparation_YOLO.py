@@ -6,6 +6,7 @@ import os
 import cv2
 import sys
 import argparse
+import random
 
 parser = argparse.ArgumentParser(description = "Dataset manipulations")
 parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder with images to get modified")
@@ -14,21 +15,43 @@ parser.add_argument('--save_path', help="Path where to save modified images")
 parser.add_argument('--ext', help="Changes extension to .jpg")
 parser.add_argument('--name', help="Renames images in ascending order")
 parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
+parser.add_argument('--fix', help='Fix the bloody issue')
 parser.add_argument('--YOLO', help="Relative path. Creates txt doc for YOLO with paths to images relative to the main build exe file")
 arguments = parser.parse_args()
 
 def relative_path_YOLO():
     pass
 
+def fix_naming_issues(images):
+    '''
+    Some *** named some images in russian, which obviously led to inability to open and read those images.
+    Find images containing russian letters, rename them with some random names
+    '''
+    import random
+    letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
+    images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
+    print(f"Found {len(images_to_rename)} images with russian letters in them")
+    for image in images_to_rename:
+        path_to_folder = os.path.split(image)[0]
+        os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
+
 def perform_modifications(images, save_path):
+    '''
+    Perform modifications on images one by one checking what modifications have been requested by a user.
+    Save the images modified according to the save path provided.
+    '''
     min_resolution = int(arguments.remove_lowres)
     counter = 1
     for path_to_image in images:
         image = cv2.imread(path_to_image)
-        # Remove low resolution images
+        # Remove low resolution images (with russian letters in the name!)
         if arguments.remove_lowres:
-            if image.shape[0]*image.shape[1] < min_resolution:
-                os.remove(path_to_image)
+            try:  # Can crash on some images
+                if image.shape[0]*image.shape[1] < min_resolution:
+                    os.remove(path_to_image)
+                    continue
+            except:
+                print("Failed on image:", path_to_image)
                 continue
         image_name = os.path.basename(path_to_image)
         # Change name
@@ -45,6 +68,9 @@ def perform_modifications(images, save_path):
     print("All images have been processed")
 
 def collect_all_images(folder, images):
+    '''
+    Recursively collect images in a folder and store them in a list. Return the list then.
+    '''
     exception = 0
     for filename in os.listdir(folder):
         filename_path = os.path.join(folder, filename)
@@ -56,7 +82,6 @@ def collect_all_images(folder, images):
             except:
                 exception += 1
     return (images, exception)
-
 
 def main():
     images_to_modify = list()
@@ -89,14 +114,19 @@ def main():
         print("You haven't provided a single source of images")
         sys.exit()
 
+    if arguments.fix:
+        fix_naming_issues(images_to_modify)
+        sys.exit()
+
     if not arguments.save_path:
         print("You haven't provided path to where save image(s) modified")
         sys.exit()
-
     save_path = arguments.save_path
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
+    # Shuffle list so that images coming from different classes are shuffled and spread
+    random.shuffle(images_to_modify)
     perform_modifications(images_to_modify, save_path)
 
     # YOLO relative path
