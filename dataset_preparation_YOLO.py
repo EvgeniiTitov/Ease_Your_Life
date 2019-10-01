@@ -1,5 +1,5 @@
 # python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder=D:\Desktop\testing_directory --remove_lowres=1000 --name=1 --ext=1
-# Could possibly add resize function
+# Could possibly add resize function to bring all images to the same size.
 import os
 import cv2
 import sys
@@ -32,16 +32,15 @@ def perform_modifications(images, save_path):
         # Change name
         if arguments.name:
             image_name = '{:05}'.format(counter) + os.path.splitext(path_to_image)[-1]
-            #print(image_name)
         # Change extension
         if arguments.ext:
             if not os.path.splitext(path_to_image)[-1] in [".jpg",".JPG"]:
                 img_name = image_name[:-4]  # exclude old extension
                 image_name = img_name + '.jpg'
-                print(image_name)
         # Save modified image
         cv2.imwrite(os.path.join(save_path, image_name), image)
         counter += 1
+    print("All images have been processed")
 
 def main():
     images_to_modify = list()
@@ -56,6 +55,9 @@ def main():
             sys.exit()
     elif arguments.image:
         images_to_modify.append(arguments.image)
+        if not arguments.save_path:
+            print("You haven't provided a path to save the image modified!")
+            sys.exit()
     else:
         print("You haven't provided a single source of images")
         sys.exit()
