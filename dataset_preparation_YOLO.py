@@ -17,6 +17,7 @@ parser.add_argument('--name', help="Renames images in ascending order")
 parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
 parser.add_argument('--fix', help='Fix the bloody naming issue')
 parser.add_argument('--remove_class', help="Remove class from txt documents to avoid doing it by hand / relabelling data")
+parser.add_argument('--fix_indexes', help="Fix indexes from 1-2 to 0-1 for YOLO")
 arguments = parser.parse_args()
 
 def relative_path_YOLO():
@@ -31,9 +32,38 @@ def fix_naming_issues(images):
     letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
     images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
     print(f"Found {len(images_to_rename)} images with russian letters in them")
+
     for image in images_to_rename:
         path_to_folder = os.path.split(image)[0]
         os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
+    print("Done")
+
+def fix_my_mistakes(folders):
+    '''
+    Don't want to talk about this. To change indexes of the objects getting taught by YOLO from 1-2 to 0-1 since i removed the poles
+    '''
+    for folder in folders:
+        for item in os.listdir(folder):
+            if not item.endswith('.txt'):
+                continue
+            path_to_txt = os.path.join(folder, item)
+            path_to_tmp_txt = os.path.join(folder, 'temporary.txt')
+
+            with open(path_to_txt, "r") as data_file, \
+                    open(path_to_tmp_txt, "w") as temporary_file:
+                for line in data_file:
+                    items = line.split()
+                    if items[0] == '1':
+                        items[0] = '0'
+                        temporary_file.write(' '.join(items) + '\n')
+                    elif items[0] == '2':
+                        items[0] = '1'
+                        temporary_file.write(' '.join(items) + '\n')
+
+            os.remove(path_to_txt)
+            os.rename(path_to_tmp_txt, path_to_txt)
+
+    print("Fixed")
 
 def remove_class(folders):
     '''
@@ -115,7 +145,10 @@ def main():
         if arguments.remove_class:
             remove_class(arguments.folder)
             sys.exit()
-
+        # Launch fixing indexes problem function and exit on completion
+        if arguments.fix_indexes:
+            fix_my_mistakes(arguments.folder)
+            sys.exit()
         # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
         if len(arguments.folder) > 1:
             for folder in arguments.folder:
