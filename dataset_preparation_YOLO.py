@@ -1,5 +1,5 @@
 # One folder - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder=D:\Desktop\Test_Dir --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
-# Multiple folders - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder D:\Desktop\Test_Dir\Modified D:\Desktop\Test_Dir\Detections --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
+# Multiple folders - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder D:\Desktop\Test_Dir\Modified D:\Desktop\Test_Dir\Detections --save_path=D:\Desktop\save_test --remove_lowres=250000 --name=1 --ext=1
 
 # Could possibly add resize function to bring all images to the same size.
 import os
@@ -15,8 +15,8 @@ parser.add_argument('--save_path', help="Path where to save modified images")
 parser.add_argument('--ext', help="Changes extension to .jpg")
 parser.add_argument('--name', help="Renames images in ascending order")
 parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
-parser.add_argument('--fix', help='Fix the bloody issue')
-parser.add_argument('--YOLO', help="Relative path. Creates txt doc for YOLO with paths to images relative to the main build exe file")
+parser.add_argument('--fix', help='Fix the bloody naming issue')
+parser.add_argument('--remove_class', help="Remove class from txt documents to avoid doing it by hand / relabelling data")
 arguments = parser.parse_args()
 
 def relative_path_YOLO():
@@ -34,6 +34,31 @@ def fix_naming_issues(images):
     for image in images_to_rename:
         path_to_folder = os.path.split(image)[0]
         os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
+
+def remove_class(folders):
+    '''
+    To save time removes coordinates of BB belonging to a certain class from the txt documents prepared for YOLO training.
+    '''
+    for folder in folders:
+        for item in os.listdir(folder):
+            if not item.endswith('.txt'):
+                continue
+            path_to_txt = os.path.join(folder, item)
+            path_to_tmp_txt = os.path.join(folder, 'temporary.txt')
+            # Open txt file to read its content, create a temporary txt file to write the content excluding a certain class.
+            with open(path_to_txt, "r") as data_file,\
+                        open(path_to_tmp_txt, "w") as temporary_file:
+                for line in data_file:
+                    class_, coordinate1, coordinate2, coordinate3, coordinate4 = line.split()
+                    # We want to exclude class 0 - poles, to skip these lines
+                    if class_ == '0':
+                        continue
+                    temporary_file.write(line)
+            # Replace the original txt file with the new updated one
+            os.remove(path_to_txt)
+            os.rename(path_to_tmp_txt, path_to_txt)
+
+    print("All txt documents have been processed")
 
 def perform_modifications(images, save_path):
     '''
@@ -86,6 +111,11 @@ def collect_all_images(folder, images):
 def main():
     images_to_modify = list()
     if arguments.folder:
+        # Launch removing class function and exit upon completion
+        if arguments.remove_class:
+            remove_class(arguments.folder)
+            sys.exit()
+
         # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
         if len(arguments.folder) > 1:
             for folder in arguments.folder:
@@ -94,6 +124,7 @@ def main():
                     continue
                 images_to_modify += [os.path.join(folder, image) for image in os.listdir(folder)\
                                                                         if any(image.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"])]
+
         # Option 2: If only one folder provided - find all images in it including subfolders etc.
         elif len(arguments.folder) == 1:
             if not os.path.isdir(arguments.folder[0]):  # nargs returns a list
@@ -113,10 +144,12 @@ def main():
     else:
         print("You haven't provided a single source of images")
         sys.exit()
+
     # Launch a fixing function and exit upon completion
     if arguments.fix:
         fix_naming_issues(images_to_modify)
         sys.exit()
+
     # Save path
     if not arguments.save_path:
         print("You haven't provided path to where save image(s) modified")
@@ -124,11 +157,10 @@ def main():
     save_path = arguments.save_path
     if not os.path.exists(save_path):
         os.mkdir(save_path)
+
     # Shuffle list so that images belonging to different classes are shuffled and spread evenly across dataset
     random.shuffle(images_to_modify)
     perform_modifications(images_to_modify, save_path)
-
-    # YOLO relative path
 
 if __name__=="__main__":
     main()
