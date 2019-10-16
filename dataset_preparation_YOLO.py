@@ -96,7 +96,7 @@ def perform_modifications(images, save_path):
     Save the images modified according to the save path provided.
     '''
     min_resolution = int(arguments.remove_lowres)
-    counter = 1
+    counter = 2574
     for path_to_image in images:
         image = cv2.imread(path_to_image)
         # Remove low resolution images (with russian letters in the name!)
@@ -115,7 +115,7 @@ def perform_modifications(images, save_path):
         # Change extension
         if arguments.ext:
             if not os.path.splitext(path_to_image)[-1] in [".jpg",".JPG"]:
-                img_name = image_name[:-4]  # exclude old extension
+                img_name = image_name.split(".")[0]  # exclude old extension
                 image_name = img_name + '.jpg'
         # Save modified image
         cv2.imwrite(os.path.join(save_path, image_name), image)
@@ -129,7 +129,7 @@ def collect_all_images(folder, images):
     exception = 0
     for filename in os.listdir(folder):
         filename_path = os.path.join(folder, filename)
-        if any(filename.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"]):
+        if any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
             images.append(filename_path)
         elif os.path.isdir(filename_path):
             try:

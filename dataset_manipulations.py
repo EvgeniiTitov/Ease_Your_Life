@@ -168,28 +168,44 @@ def initialize_extension():
 
     change_extensions(source_folder, extensions)
 
-def shuffle_paths_to_images():
+def get_images_names(path):
+    """
+    Collects path to all images to shuffle them afterwards because I am a human and I make mistakes alright
+    :param path: folder with images
+    :return: list if paths
+    """
+
     container = []
-    source = r'D:\Desktop\darknet-master\build\darknet\x64\data\obj'
-    for item in os.listdir(source):
-        container.append(item)
-    pass
+    for element in os.listdir(path):
+        if element.endswith('.txt'):
+           continue
+        container.append(element)
+
+    return container
 
 def initialize_yolo():
     '''
-    Creates .txt doc with names of all images to be fed to a NN relative to the darknet.exe
+    Fills .txt doc with names of all images to be fed to a NN relative to the darknet.exe
     '''
+    import random
+
     relative_path = r'data/obj/'
-    source = r'D:\Desktop\darknet-master\build\darknet\x64\data\obj'
-    destination = r'D:\Desktop\darknet-master\build\darknet\x64\data\train.txt'
+    source = input("Enter the source of images: ")
+    destination = input("Enter the destination TXT file: ")
+    if not os.path.isfile(destination):
+        print("You haven't specified path to a TXT document")
+        return
+    shuffle = input("Do you want to have images shuffled? Y/N: ")
+
+    images = get_images_names(source)
+    if shuffle.upper().strip() == "Y":
+        random.shuffle(images)
 
     with open(destination, 'w') as f:
-        for item in os.listdir(source):
-            if item.endswith('.txt'):
-                continue
+        for item in images:
             f.write(os.path.join(relative_path, item) + '\n')
 
-    print("Done my dude!")
+    print("Done!")
 
 def main():
     print("WELCOME TO DATA MANIPULATION SCRIPT GOOD SIR")

@@ -1,3 +1,8 @@
+# EXAMPLE:
+# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\folder_sorter.py --folder=D:\Desktop\testing --classes concrete metal
+# --save_path D:\Desktop\testing\Concrete D:\Desktop\testing\Metal
+
+# Make sure you provide classes and save paths in order!
 import cv2
 import sys
 import os
@@ -76,7 +81,7 @@ def main():
         sys.exit()
     class_save_path = dict(zip(classes, save_paths))  # {(1, 'pole'): 'D:\\Desktop\\Test_Dir1', (2, 'isolator'): 'D:\\Desktop\\Test_Dir2'}
     # Create a window a show images getting processed
-    window_name = "Spliting images into different datasets"
+    window_name = "Splitting images into different datasets"
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     # Traverse over all images in the source folder, for each call relocating function
     for filename in os.listdir(source_folder):
