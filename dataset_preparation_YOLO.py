@@ -8,6 +8,7 @@ import sys
 import argparse
 import random
 
+
 parser = argparse.ArgumentParser(description = "Dataset manipulations")
 parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder with images to get modified")
 parser.add_argument("-i", '--image', help="Path to an image to get modified")
@@ -18,14 +19,47 @@ parser.add_argument('--remove_lowres', help="Removes all images with resolution 
 parser.add_argument('--fix', help='Fix the bloody naming issue')
 parser.add_argument('--remove_class', help="Remove class from txt documents to avoid doing it by hand / relabelling data")
 parser.add_argument('--fix_indexes', help="Fix indexes from 1-2 to 0-1 for YOLO")
+parser.add_argument('--rename_img_txt',
+                    help="Rename both images and txt from a certain number up to add to the end of already existing dataset")
 arguments = parser.parse_args()
 
-def relative_path_YOLO():
-    pass
 
-def fix_naming_issues(images):
+def rename_ImgTxt(folders,
+                  start_index=2574):
+    """
+    Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
+    with the same name?
+    """
+    start = start_index
+
+    def rename_txts(txts_to_rename, start):
+        for txt in txts_to_rename:
+            new_txt_name = '{:05}'.format(start) + ".txt"
+            os.rename(txt, os.path.join(os.path.split(txt)[0], new_txt_name))
+            start += 1
+        print("Done")
+
+    for folder in folders:
+        txts_to_rename = list()
+        for filename in os.listdir(folder):
+            # Collect all txts to handle them after the images
+            if filename.endswith('.txt'):
+                txts_to_rename.append(os.path.join(folder, filename))
+                continue
+            # Make sure we process only images
+            if not any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
+                continue
+
+            path_to_img = os.path.join(folder, filename)
+            new_img_name = '{:05}'.format(start_index) + os.path.splitext(filename)[-1]
+            os.rename(path_to_img, os.path.join(folder, new_img_name))
+            start_index += 1
+
+        rename_txts(txts_to_rename, start)
+
+
+def replace_rus_letters(images):
     '''
-    Some *** named some images in russian, which obviously led to inability to open and work with those images.
     Find images containing russian letters, rename them with some random names - numbers
     '''
     import random
@@ -38,9 +72,10 @@ def fix_naming_issues(images):
         os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
     print("Done")
 
-def fix_my_mistakes(folders):
+
+def change_class_value(folders):
     '''
-    Don't want to talk about this. To change indexes of the objects getting taught by YOLO from 1-2 to 0-1 since i removed the poles
+    To change indexes of the objects getting taught to YOLO from 1-2 to 0-1 since i removed the poles
     '''
     for folder in folders:
         for item in os.listdir(folder):
@@ -65,6 +100,7 @@ def fix_my_mistakes(folders):
 
     print("Fixed")
 
+
 def remove_class(folders):
     '''
     To save time removes coordinates of BB belonging to a certain class from the txt documents prepared for YOLO training.
@@ -81,7 +117,9 @@ def remove_class(folders):
                 for line in data_file:
                     class_, coordinate1, coordinate2, coordinate3, coordinate4 = line.split()
                     # We want to exclude class 0 - poles, to skip these lines
-                    if class_ == '0':
+                    if class_ == '1':
+                        continue
+                    elif class_ == '2':
                         continue
                     temporary_file.write(line)
             # Replace the original txt file with the new updated one
@@ -89,6 +127,7 @@ def remove_class(folders):
             os.rename(path_to_tmp_txt, path_to_txt)
 
     print("All txt documents have been processed")
+
 
 def perform_modifications(images, save_path):
     '''
@@ -122,6 +161,7 @@ def perform_modifications(images, save_path):
         counter += 1
     print("All images have been processed")
 
+
 def collect_all_images(folder, images):
     '''
     Recursively collect images in a folder and store them in a list. Return the list then.
@@ -138,17 +178,26 @@ def collect_all_images(folder, images):
                 exception += 1
     return (images, exception)
 
+
 def main():
     images_to_modify = list()
+
     if arguments.folder:
         # Launch removing class function and exit upon completion
         if arguments.remove_class:
             remove_class(arguments.folder)
             sys.exit()
+
         # Launch fixing indexes problem function and exit on completion
         if arguments.fix_indexes:
-            fix_my_mistakes(arguments.folder)
+            change_class_value(arguments.folder)
             sys.exit()
+
+        # Launch renaming TXTs and IMGs function and exit upon completion
+        if arguments.rename_img_txt:
+            rename_ImgTxt(arguments.folder)
+            sys.exit()
+
         # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
         if len(arguments.folder) > 1:
             for folder in arguments.folder:
@@ -157,7 +206,6 @@ def main():
                     continue
                 images_to_modify += [os.path.join(folder, image) for image in os.listdir(folder)\
                                                                         if any(image.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"])]
-
         # Option 2: If only one folder provided - find all images in it including subfolders etc.
         elif len(arguments.folder) == 1:
             if not os.path.isdir(arguments.folder[0]):  # nargs returns a list
@@ -180,7 +228,7 @@ def main():
 
     # Launch a fixing function and exit upon completion
     if arguments.fix:
-        fix_naming_issues(images_to_modify)
+        replace_rus_letters(images_to_modify)
         sys.exit()
 
     # Save path

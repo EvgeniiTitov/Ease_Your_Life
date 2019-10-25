@@ -186,6 +186,8 @@ def get_images_names(path):
 def initialize_yolo():
     '''
     Fills .txt doc with names of all images to be fed to a NN relative to the darknet.exe
+    Enter source - folder with images
+    Destination - txt doc where save relative paths
     '''
     import random
 
@@ -202,8 +204,8 @@ def initialize_yolo():
         random.shuffle(images)
 
     with open(destination, 'w') as f:
-        for item in images:
-            f.write(os.path.join(relative_path, item) + '\n')
+        for image in images:
+            f.write(os.path.join(relative_path, image) + '\n')
 
     print("Done!")
 
