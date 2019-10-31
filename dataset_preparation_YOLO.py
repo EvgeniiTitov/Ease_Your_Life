@@ -25,7 +25,7 @@ arguments = parser.parse_args()
 
 
 def rename_ImgTxt(folders,
-                  start_index=2574):
+                  start_index=3042):
     """
     Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
     with the same name?
@@ -135,8 +135,7 @@ def perform_modifications(images, save_path):
     Save the images modified according to the save path provided.
     '''
     min_resolution = int(arguments.remove_lowres)
-    counter = 2574
-    for path_to_image in images:
+    for index, path_to_image in enumerate(images, start=4539):
         image = cv2.imread(path_to_image)
         # Remove low resolution images (with russian letters in the name!)
         if arguments.remove_lowres:
@@ -150,7 +149,7 @@ def perform_modifications(images, save_path):
         image_name = os.path.basename(path_to_image)
         # Change name
         if arguments.name:
-            image_name = '{:05}'.format(counter) + os.path.splitext(path_to_image)[-1]
+            image_name = '{:05}'.format(index) + os.path.splitext(path_to_image)[-1]
         # Change extension
         if arguments.ext:
             if not os.path.splitext(path_to_image)[-1] in [".jpg",".JPG"]:
@@ -158,7 +157,6 @@ def perform_modifications(images, save_path):
                 image_name = img_name + '.jpg'
         # Save modified image
         cv2.imwrite(os.path.join(save_path, image_name), image)
-        counter += 1
     print("All images have been processed")
 
 
