@@ -25,7 +25,7 @@ arguments = parser.parse_args()
 
 
 def rename_ImgTxt(folders,
-                  start_index=3042):
+                  start_index=4862):
     """
     Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
     with the same name?

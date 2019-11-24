@@ -13,7 +13,7 @@ arguments = parser.parse_args()
 
 def crop_frames(cap, save_path, frame_N, output_name):
     '''
-    :param cap: video object.
+    :param cap: video object
     :param save_path: where to save cropped out frames
     :param frame_N: save a frame once in N frames
     :return:
