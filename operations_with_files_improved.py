@@ -7,7 +7,7 @@ class FilesManager:
 
     def search_file(self, filename, search_locations = ("C:", "D:")):
         """
-        Searches for the filename provided. By default check all computer
+        Searches for the filename provided. By default checks all computer. Optimize search, too slow.
         :param filename:
         :param search_locations:
         :return:
@@ -32,9 +32,11 @@ class FilesManager:
         """
         Recursively (os.walk()) explores folder's content
         :param path_to_explore: path to explore
-        :param files_found: stores files found in a defaultdict
+        :param files_found: stores files found. Defaultdict!
         :return:
         """
+        assert type(files_found) == dict
+
         for filename in os.listdir(path_to_explore):
             path_filename = os.path.join(path_to_explore, filename)
             if os.path.isfile(path_filename):
@@ -45,9 +47,26 @@ class FilesManager:
 
         return files_found
 
-    def relocate_content(self):
-        pass
+    def relocate_content(self, to_relocate, destination):
+        """
+        Relocates file(s) to a new user provided place
+        :param to_relocate: file or a folder
+        :param destination: new place to store file(s)
+        :return:
+        """
+        if not os.path.isfile(to_relocate):
 
+            if len(os.listdir(to_relocate)) == 0:
+                print("Empty folder. Nothing to move")
+                return
+
+            for filename in os.listdir(to_relocate):
+                filename_path = os.path.join(to_relocate, filename)
+                os.rename(filename_path, os.path.join(destination, filename))
+        else:
+            os.rename(to_relocate, os.path.join(destination, os.path.split(to_relocate)[-1]))
+
+        return 1
 
 class ManagerWrapper:
 
@@ -60,7 +79,8 @@ class ManagerWrapper:
 
         print("Searching...")
         if not potential_location.upper().strip() == "NO":
-            findings = self.files_manager.search_file(file_to_find.lower(), search_locations=list(potential_location))
+            findings = self.files_manager.search_file(file_to_find.lower(),
+                                                      search_locations=list(potential_location))
         else:
             findings = self.files_manager.search_file(file_to_find.lower())
 
@@ -72,10 +92,21 @@ class ManagerWrapper:
             print("\nNo files have been found")
 
     def delete(self):
-        pass
+        to_delete = input("Provide file's name or path to the file")
+        # Check if it is a path?
+
+
 
     def relocate(self):
-        pass
+        to_relocate = input("Path to the file to relocate: ")
+        destination = input("Destination: ")
+
+        if not os.path.exists(destination):
+            os.mkdir(destination)
+
+        success = self.files_manager.relocate_content(to_relocate, destination)
+        if success:
+            print("Relocation complete")
 
     def explore(self):
         location_to_explore = input("Location to explore: ")
@@ -93,6 +124,7 @@ class ManagerWrapper:
             print(f"Ext: {extension}, nb of files: {len(files)}")
             total_files += len(files)
         print("TOTAL NUMBER:", total_files)
+
 
 def main():
 
