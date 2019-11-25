@@ -5,13 +5,16 @@ import sys
 
 class FilesManager:
 
-    def search_file(self, filename, search_locations = ("C:", "D:")):
+    def search_file(self, filename,
+                          search_locations = ("C:", "D:")):
         """
         Searches for the filename provided. By default checks all computer. Optimize search, too slow.
         :param filename:
         :param search_locations:
         :return:
         """
+
+        # USE A GENERATOR HERE AND CHECK WITH THE WORD EXPERIENCE
         potential_findings = list()
 
         for directory in search_locations:
@@ -35,8 +38,6 @@ class FilesManager:
         :param files_found: stores files found. Defaultdict!
         :return:
         """
-        assert type(files_found) == dict
-
         for filename in os.listdir(path_to_explore):
             path_filename = os.path.join(path_to_explore, filename)
             if os.path.isfile(path_filename):
@@ -68,38 +69,77 @@ class FilesManager:
 
         return 1
 
+
 class ManagerWrapper:
 
     def __init__(self):
         self.files_manager = FilesManager()
 
     def search(self):
-        file_to_find = input("Enter file's name: ")
-        potential_location = input("Potential location or NO in case you don't know: ")
-
+        file_to_find = input("==> Enter file's name: ")
+        potential_location = input("==> Potential location or NO in case you don't know: ")
         print("Searching...")
-        if not potential_location.upper().strip() == "NO":
+
+        if potential_location.upper().strip() != "NO":
             findings = self.files_manager.search_file(file_to_find.lower(),
-                                                      search_locations=list(potential_location))
+                                                      search_locations=[potential_location])
         else:
             findings = self.files_manager.search_file(file_to_find.lower())
 
-        if findings:
-            print("\nFollowing files found:")
-            for filename, path_to_file in findings:
-                print("Found:", filename, " here:", path_to_file)
+        if not findings and potential_location.upper().strip() != "NO":
+            extended_search = input("\n==> Nothing found. Would you like to search across all computer? Y/N: ")
+            if extended_search.upper().strip() == "Y":
+                print("Searching again...")
+                findings = self.files_manager.search_file(file_to_find.lower())
+
+        if len(findings) > 1:
+            print("\nMultiple files found:")
+            for index, (filename, path_to_file) in enumerate(findings):
+                print(index, "Found:", filename, " here:", path_to_file)
+
+            try:
+                file_index = int(input("==> Enter index of the correct file: "))
+            except:
+                print("Incorrect input")
+                return
+            the_file = findings[file_index]
+
+        elif len(findings) == 1:
+            print("\nThe following file's been found:")
+            print("File:", findings[0][0], "at this location:", findings[0][1])
+            the_file = findings[0]
+
         else:
-            print("\nNo files have been found")
+            print("\nFailed to find the file")
+            return
+
+        process_result = input("\n==> Do you want to do anything to the file? DELETE / RELOCATE / N: ")
+        if process_result.upper().strip() == "N":
+            return
+        else:
+            if process_result.upper().strip() == "RELOCATE":
+                new_destination = input("==> Enter new destination: ")
+                self.relocate(file_to_relocate=the_file[-1],
+                              destination=new_destination)
+
+            elif process_result.upper().strip() == "DELETE":
+                self.delete()
+
+            else:
+                print("Incorrect input")
+                return
 
     def delete(self):
-        to_delete = input("Provide file's name or path to the file")
+        to_delete = input("==> Provide file's name or path to the file")
         # Check if it is a path?
 
-
-
-    def relocate(self):
-        to_relocate = input("Path to the file to relocate: ")
-        destination = input("Destination: ")
+    def relocate(self, file_to_relocate = None, destination = None):
+        if not file_to_relocate and not destination:
+            to_relocate = input("==> Path to the file to relocate: ")
+            destination = input("==> Destination: ")
+        else:
+            to_relocate = file_to_relocate
+            destination = destination
 
         if not os.path.exists(destination):
             os.mkdir(destination)
@@ -109,7 +149,7 @@ class ManagerWrapper:
             print("Relocation complete")
 
     def explore(self):
-        location_to_explore = input("Location to explore: ")
+        location_to_explore = input("==> Location to explore: ")
 
         if not os.path.isdir(location_to_explore):
             print("ERROR: Explore only works for folders!")
@@ -131,7 +171,7 @@ def main():
     manager = ManagerWrapper()
 
     while True:
-        action = input("Select action SEARCH / DELETE / RELOCATE / EXPLORE / EXIT: ")
+        action = input("\n==> Select action SEARCH / DELETE / RELOCATE / EXPLORE / EXIT: ")
         if action.upper().strip() == "EXIT":
             print("Exiting")
             sys.exit()
@@ -144,7 +184,7 @@ def main():
         elif action.upper().strip() == "EXPLORE":
             manager.explore()
 
-        next_action = input("\nWould you like to perform another operation? Y / N: ")
+        next_action = input("\n==> Would you like to perform another operation? Y / N: ")
         if next_action.upper().strip() == "N":
             print("See you!")
             break
