@@ -1,6 +1,7 @@
 from collections import defaultdict
 import os
 import sys
+import shutil
 
 
 class FilesManager:
@@ -28,8 +29,19 @@ class FilesManager:
 
         return potential_findings
 
-    def delete_file(self):
-        pass
+    def delete_file(self, path):
+        """
+        Deletes a file or a folder entirely
+        :param path:
+        :return:
+        """
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        else:
+            try:
+                os.remove(path)
+            except:
+                print("Failed to delete:", path)
 
     def explore_content(self, path_to_explore, files_found):
         """
@@ -130,8 +142,22 @@ class ManagerWrapper:
                 return
 
     def delete(self):
-        to_delete = input("==> Provide file's name or path to the file")
-        # Check if it is a path?
+        path = input("==> Provide path to the file: ")
+
+        if not os.path.exists(path):
+            print("The file provided doesn't exist")
+            return
+
+        if os.path.isdir(path) and len(os.listdir(path)) > 0:
+            double_check = input("==> You provided a non-empty folder. Still delete? Y / N: ")
+            if double_check.upper().strip() == "Y":
+                self.files_manager.delete_file(path)
+            else:
+                return
+        else:
+            self.files_manager.delete_file(path)
+
+        print("File's been deleted")
 
     def relocate(self, file_to_relocate = None, destination = None):
         if not file_to_relocate and not destination:
