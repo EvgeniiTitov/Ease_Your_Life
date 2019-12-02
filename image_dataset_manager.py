@@ -60,12 +60,23 @@ class DatasetManager:
 
         print("All images processed")
 
+    def split_into_training_valid(self, paths, destination, proportion):
+
+        nb_images_to_relocate = int(len(paths) * proportion)
+
+        for i in range(nb_images_to_relocate):
+            image_name = os.path.split(paths[i])[-1]
+            os.rename(paths[i], os.path.join(destination, image_name))
+
+        print("Relocated:", proportion*100, " percent of images to:", destination)
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Dataset manipulations")
     parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
     parser.add_argument("-i", '--image', help="Path to an image to get modified")
     parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
     parser.add_argument('--ext', help="Changes extension to .jpg")
+    parser.add_argument('--split', type=float, help="Split a folder of images into training and valid portions")
     parser.add_argument('--name', help="Renames images in ascending order")
     parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
     parser.add_argument('--new_size', help="Bring all images to the same size")
@@ -148,6 +159,18 @@ def main():
     # Shuffle images so that images of different classes spread evenly
     if len(images_to_modify) > 1:
         random.shuffle(images_to_modify)
+
+    if arguments.split:
+        if not 0 < arguments.split <= 1:
+            print("Incorrect value of split")
+            sys.exit()
+        else:
+            proportion = arguments.split
+
+        dataset_manager.split_into_training_valid(paths=images_to_modify,
+                                             destination=save_path,
+                                             proportion=proportion)
+        return
 
     dataset_manager.modify_images(images=images_to_modify,
                            modifications=arguments,
