@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c9dc4d03-22a9-47bb-9156-a33ece9d3ac1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image_dataset_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/image_dataset_manager.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/image_dataset_manager.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="433">
-              <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+            <state relative-caret-position="242">
+              <caret line="65" selection-start-line="65" selection-end-line="65" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -28,7 +27,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataset_manipulations.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3322">
+            <state relative-caret-position="4048">
               <caret line="184" selection-start-line="184" selection-end-line="184" />
             </state>
           </provider>
@@ -37,7 +36,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataset_preparation_YOLO.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1805">
+            <state relative-caret-position="1408">
               <caret line="68" selection-start-line="68" selection-end-line="68" />
               <folding>
                 <element signature="e#560#569#0" expanded="true" />
@@ -70,9 +69,9 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
+  <component name="ProjectFrameBounds">
     <option name="x" value="-2560" />
-    <option name="width" value="2074" />
+    <option name="width" value="2048" />
     <option name="height" value="1040" />
   </component>
   <component name="ProjectView">
@@ -96,7 +95,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Machine_Learning_NNs/work_related_models" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -133,10 +132,9 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2560" y="0" width="2074" height="1040" extended-state="0" />
-    <editor active="true" />
+    <frame x="-2560" y="0" width="2048" height="1040" extended-state="0" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10265226" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1039801" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -202,7 +200,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dataset_preparation_YOLO.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1805">
+        <state relative-caret-position="1408">
           <caret line="68" selection-start-line="68" selection-end-line="68" />
           <folding>
             <element signature="e#560#569#0" expanded="true" />
@@ -212,15 +210,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dataset_manipulations.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3322">
+        <state relative-caret-position="4048">
           <caret line="184" selection-start-line="184" selection-end-line="184" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/image_dataset_manager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="65" lean-forward="true" selection-start-line="65" selection-end-line="65" />
+        <state relative-caret-position="242">
+          <caret line="65" selection-start-line="65" selection-end-line="65" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>

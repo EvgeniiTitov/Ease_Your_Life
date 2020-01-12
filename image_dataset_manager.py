@@ -70,11 +70,14 @@ class DatasetManager:
 
         print("Relocated:", proportion*100, " percent of images to:", destination)
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Dataset manipulations")
+
     parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
     parser.add_argument("-i", '--image', help="Path to an image to get modified")
     parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
+
     parser.add_argument('--ext', help="Changes extension to .jpg")
     parser.add_argument('--split', type=float, help="Split a folder of images into training and valid portions")
     parser.add_argument('--name', help="Renames images in ascending order")
@@ -119,6 +122,7 @@ def main():
 
     # Parse user input
     start = time.time()
+
     if arguments.folder:
         # Multiple folders provided. Collect paths to all images to process.
         if len(arguments.folder) > 1:
@@ -168,13 +172,13 @@ def main():
             proportion = arguments.split
 
         dataset_manager.split_into_training_valid(paths=images_to_modify,
-                                             destination=save_path,
-                                             proportion=proportion)
+                                                  destination=save_path,
+                                                  proportion=proportion)
         return
 
     dataset_manager.modify_images(images=images_to_modify,
-                           modifications=arguments,
-                           save_path=save_path)
+                                  modifications=arguments,
+                                  save_path=save_path)
 
 if __name__ == "__main__":
     main()

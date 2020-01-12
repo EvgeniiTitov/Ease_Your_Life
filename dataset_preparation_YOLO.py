@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser(description = "Dataset manipulations")
 parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder with images to get modified")
 parser.add_argument("-i", '--image', help="Path to an image to get modified")
 parser.add_argument('--save_path', help="Path where to save modified images")
+
 parser.add_argument('--ext', help="Changes extension to .jpg")
 parser.add_argument('--name', help="Renames images in ascending order")
 parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
@@ -211,10 +212,12 @@ def main():
                 sys.exit()
             images_to_modify, exceptions = collect_all_images(arguments.folder[0], images_to_modify)
             print(f"All {len(images_to_modify)} images have been collected with {exceptions} exceptions")
+
         # Check if any images have been collected
         if not images_to_modify:
             print("The folder provided doesn't contain any images. Double check!")
             sys.exit()
+
     elif arguments.image:
         images_to_modify.append(arguments.image)
         if not arguments.save_path:

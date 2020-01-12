@@ -142,6 +142,10 @@ class ManagerWrapper:
                 return
 
     def delete(self):
+        """
+
+        :return:
+        """
         path = input("==> Provide path to the file: ")
 
         if not os.path.exists(path):
@@ -160,6 +164,12 @@ class ManagerWrapper:
         print("File's been deleted")
 
     def relocate(self, file_to_relocate = None, destination = None):
+        """
+
+        :param file_to_relocate:
+        :param destination:
+        :return:
+        """
         if not file_to_relocate and not destination:
             to_relocate = input("==> Path to the file to relocate: ")
             destination = input("==> Destination: ")
@@ -175,6 +185,10 @@ class ManagerWrapper:
             print("Relocation complete")
 
     def explore(self):
+        """
+
+        :return:
+        """
         location_to_explore = input("==> Location to explore: ")
 
         if not os.path.isdir(location_to_explore):
@@ -201,12 +215,16 @@ def main():
         if action.upper().strip() == "EXIT":
             print("Exiting")
             sys.exit()
+
         elif action.upper().strip() == "SEARCH":
             manager.search()
+
         elif action.upper().strip() == "DELETE":
             manager.delete()
+
         elif action.upper().strip() == "RELOCATE":
             manager.relocate()
+
         elif action.upper().strip() == "EXPLORE":
             manager.explore()
 
