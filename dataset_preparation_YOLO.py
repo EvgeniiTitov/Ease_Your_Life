@@ -26,7 +26,7 @@ arguments = parser.parse_args()
 
 
 def rename_ImgTxt(folders,
-                  start_index=4862):
+                  start_index=1):
     """
     Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
     with the same name?
@@ -34,14 +34,17 @@ def rename_ImgTxt(folders,
     start = start_index
 
     def rename_txts(txts_to_rename, start):
+
         for txt in txts_to_rename:
             new_txt_name = '{:05}'.format(start) + ".txt"
             os.rename(txt, os.path.join(os.path.split(txt)[0], new_txt_name))
             start += 1
+
         print("Done")
 
     for folder in folders:
         txts_to_rename = list()
+
         for filename in os.listdir(folder):
             # Collect all txts to handle them after the images
             if filename.endswith('.txt'):
@@ -64,13 +67,17 @@ def replace_rus_letters(images):
     Find images containing russian letters, rename them with some random names - numbers
     '''
     import random
+
+    # Turn it into sets and see if there is overlap. Way faster and efficient than this
     letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
     images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
+
     print(f"Found {len(images_to_rename)} images with russian letters in them")
 
     for image in images_to_rename:
         path_to_folder = os.path.split(image)[0]
         os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
+
     print("Done")
 
 
@@ -79,7 +86,9 @@ def change_class_value(folders):
     To change indexes of the objects getting taught to YOLO from 1-2 to 0-1 since i removed the poles
     '''
     for folder in folders:
+
         for item in os.listdir(folder):
+
             if not item.endswith('.txt'):
                 continue
             path_to_txt = os.path.join(folder, item)
@@ -107,11 +116,15 @@ def remove_class(folders):
     To save time removes coordinates of BB belonging to a certain class from the txt documents prepared for YOLO training.
     '''
     for folder in folders:
+
         for item in os.listdir(folder):
+
             if not item.endswith('.txt'):
                 continue
+
             path_to_txt = os.path.join(folder, item)
             path_to_tmp_txt = os.path.join(folder, 'temporary.txt')
+
             # Open txt file to read its content, create a temporary txt file to write the content excluding a certain class.
             with open(path_to_txt, "r") as data_file,\
                         open(path_to_tmp_txt, "w") as temporary_file:
@@ -123,6 +136,7 @@ def remove_class(folders):
                     elif class_ == '2':
                         continue
                     temporary_file.write(line)
+
             # Replace the original txt file with the new updated one
             os.remove(path_to_txt)
             os.rename(path_to_tmp_txt, path_to_txt)
@@ -136,28 +150,34 @@ def perform_modifications(images, save_path):
     Save the images modified according to the save path provided.
     '''
     min_resolution = int(arguments.remove_lowres)
-    for index, path_to_image in enumerate(images, start=4539):
+
+    for index, path_to_image in enumerate(images, start=1):
         image = cv2.imread(path_to_image)
+
         # Remove low resolution images (with russian letters in the name!)
         if arguments.remove_lowres:
             try:  # Can crash on some images
-                if image.shape[0]*image.shape[1] < min_resolution:
+                if image.shape[0] * image.shape[1] < min_resolution:
                     os.remove(path_to_image)
                     continue
             except:
                 print("Failed on image:", path_to_image)
                 continue
+
         image_name = os.path.basename(path_to_image)
         # Change name
         if arguments.name:
             image_name = '{:05}'.format(index) + os.path.splitext(path_to_image)[-1]
+
         # Change extension
         if arguments.ext:
             if not os.path.splitext(path_to_image)[-1] in [".jpg",".JPG"]:
                 img_name = image_name.split(".")[0]  # exclude old extension
                 image_name = img_name + '.jpg'
+
         # Save modified image
         cv2.imwrite(os.path.join(save_path, image_name), image)
+
     print("All images have been processed")
 
 
@@ -168,13 +188,16 @@ def collect_all_images(folder, images):
     exception = 0
     for filename in os.listdir(folder):
         filename_path = os.path.join(folder, filename)
+
         if any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
             images.append(filename_path)
+
         elif os.path.isdir(filename_path):
             try:
                 collect_all_images(filename_path, images)
             except:
                 exception += 1
+
     return (images, exception)
 
 
@@ -200,29 +223,31 @@ def main():
         # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
         if len(arguments.folder) > 1:
             for folder in arguments.folder:
+
                 if not os.path.isdir(folder):
                     print(f"\n{folder} is not a folder!")
                     continue
+
                 images_to_modify += [os.path.join(folder, image) for image in os.listdir(folder)\
                                                                         if any(image.endswith(ext) for ext in [".jpg",".JPG",".png",".PNG"])]
         # Option 2: If only one folder provided - find all images in it including subfolders etc.
         elif len(arguments.folder) == 1:
+
             if not os.path.isdir(arguments.folder[0]):  # nargs returns a list
                 print("What you've provided is not a folder")
                 sys.exit()
+
             images_to_modify, exceptions = collect_all_images(arguments.folder[0], images_to_modify)
             print(f"All {len(images_to_modify)} images have been collected with {exceptions} exceptions")
 
         # Check if any images have been collected
         if not images_to_modify:
-            print("The folder provided doesn't contain any images. Double check!")
+            print("The folder(s) provided doesn't contain any images. Double check!")
             sys.exit()
 
     elif arguments.image:
         images_to_modify.append(arguments.image)
-        if not arguments.save_path:
-            print("You haven't provided a path to save the image modified!")
-            sys.exit()
+
     else:
         print("You haven't provided a single source of images")
         sys.exit()
@@ -237,11 +262,13 @@ def main():
         print("You haven't provided path to where save image(s) modified")
         sys.exit()
     save_path = arguments.save_path
+
     if not os.path.exists(save_path):
         os.mkdir(save_path)
 
     # Shuffle list so that images belonging to different classes are shuffled and spread evenly across dataset
     random.shuffle(images_to_modify)
+
     perform_modifications(images_to_modify, save_path)
 
 if __name__=="__main__":
