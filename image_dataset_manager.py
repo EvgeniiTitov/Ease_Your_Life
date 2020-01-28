@@ -7,9 +7,17 @@ import time
 
 
 class DatasetManager:
+    """
 
+    """
     def modify_images(self, images, modifications, save_path):
+        """
 
+        :param images:
+        :param modifications:
+        :param save_path:
+        :return:
+        """
         for index, path_to_image in enumerate(images):
             image = cv2.imread(path_to_image)
             image_name = os.path.basename(path_to_image)
@@ -42,6 +50,7 @@ class DatasetManager:
                     image = cv2.resize(image, (height, width))
                 except:
                     print("Failed to resize:", path_to_image)
+
             # Replace russian letters
             if modifications.fix_russian and modifications.name:
                 pass
@@ -52,6 +61,7 @@ class DatasetManager:
                                    "у","ф","х","ц","ч","ш","щ","ь","э","ю","я"," "}
 
                 rus_letters_found = russian_letters_space & set(image_name)
+
                 if len(rus_letters_found) > 0:
                     image_name = "{:05}".format(index) + '.jpg'
 
@@ -61,7 +71,13 @@ class DatasetManager:
         print("All images processed")
 
     def split_into_training_valid(self, paths, destination, proportion):
+        """
 
+        :param paths:
+        :param destination:
+        :param proportion:
+        :return:
+        """
         nb_images_to_relocate = int(len(paths) * proportion)
 
         for i in range(nb_images_to_relocate):

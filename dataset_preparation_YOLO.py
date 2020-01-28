@@ -72,6 +72,15 @@ def replace_rus_letters(images):
     letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
     images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
 
+    # russian_letters_space = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
+    #                          "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+    #                          "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
+    #
+    # rus_letters_found = russian_letters_space & set(image_name)
+    #
+    # if len(rus_letters_found) > 0:
+    #     image_name = "{:05}".format(index) + '.jpg'
+
     print(f"Found {len(images_to_rename)} images with russian letters in them")
 
     for image in images_to_rename:
