@@ -4,12 +4,13 @@ import argparse
 import os
 import sys
 
-parser = argparse.ArgumentParser(description='Frame Cropper Detection using YOLO in OPENCV')
+parser = argparse.ArgumentParser(description='Frame Cropper in OPENCV')
 parser.add_argument('--folder', help='Path to a folder containing videos.')
 parser.add_argument('--video', help='Path to a video file.')
-parser.add_argument('--frame', default=50, help='Save a frame once in N frames. Once in 100 frames by default')
+parser.add_argument('--frame', default=25, help='Save a frame once in N frames. Once in 100 frames by default')
 parser.add_argument('--save_path', help='Path to the folder where to save frames cropped')
 arguments = parser.parse_args()
+
 
 def crop_frames(cap, save_path, frame_N, output_name):
     '''
@@ -19,8 +20,11 @@ def crop_frames(cap, save_path, frame_N, output_name):
     :return:
     '''
     frame_counter = 0
+
     while cv2.waitKey(1) < 0:
+
         has_frame, frame = cap.read()
+
         if not has_frame:
             print("Video", output_name, "has been processed.")
             return
@@ -34,6 +38,7 @@ def crop_frames(cap, save_path, frame_N, output_name):
 
         if frame_counter % frame_N == 0:
             cv2.imwrite(os.path.join(save_path, output_name + '_' + str(frame_counter) + '.jpg'), frame)
+
         print(frame_counter)
         frame_counter += 1
 
@@ -43,6 +48,7 @@ def main():
     if not arguments.save_path:
         print("You have to specify the path to a folder where cropped frames will be saved.")
         sys.exit()
+
     save_path = arguments.save_path  # Path to save frames cropped
 
     once_in_N_frames = arguments.frame  # Save a frame once in N frames
@@ -52,31 +58,43 @@ def main():
 
     if arguments.video:
         video_path = arguments.video
+
         if not any(video_path.endswith(ext) for ext in ['.mp4', '.MP4']):
-            print("You were supposed to provide a videofile. Giving up.")
-            sys.exit()
+            raise IOError("The provided video is not a video")
+
         output_name = os.path.basename(video_path)[:-4]
         cap = cv2.VideoCapture(video_path)
+
+        if not cap.isOpened():
+            print("Failed to open the cap for:", output_name)
+            sys.exit()
+
         crop_frames(cap, save_path, int(once_in_N_frames), output_name)
 
     elif arguments.folder:
         #To process all videos in a folder
         if not os.path.isdir(arguments.folder):
-            print("You were supposed to provide a folder. Giving up.")
+            raise IOError("The provided folder is not a folder")
 
         for video in os.listdir(arguments.folder):
+
             if not any(video.endswith(ext) for ext in ['.mp4', '.MP4']):  # Discard everything except what we are after
                 continue
+
             video_path = os.path.join(arguments.folder, video)
             output_name = video[:-4]
+
             cap = cv2.VideoCapture(video_path)
+
+            if not cap.isOpened():
+                print("Failed to open the cap for:", output_name)
+                continue
+
             crop_frames(cap, save_path, int(once_in_N_frames), output_name)
 
     else:
         print("Incorrect input. Giving up")
 
-    print("Done. Exiting the script.")
-    sys.exit()
 
 if __name__ == '__main__':
     main()

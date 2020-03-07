@@ -6,11 +6,33 @@ import random
 import time
 
 
-class DatasetManager:
-    """
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Dataset manipulations")
 
-    """
-    def modify_images(self, images, modifications, save_path):
+    parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
+    parser.add_argument("-i", '--image', help="Path to an image to get modified")
+    parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
+
+    parser.add_argument('--ext', help="Changes extension to .jpg")
+    parser.add_argument('--split', type=float, help="Split a folder of images into training and valid portions")
+    parser.add_argument('--name', help="Renames images in ascending order")
+    parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
+    parser.add_argument('--new_size', help="Bring all images to the same size")
+    parser.add_argument('--fix_russian', help='Remove russian letters from names')
+    arguments = parser.parse_args()
+
+    return arguments
+
+
+class DatasetManager:
+
+
+    def modify_images(
+            self,
+            images,
+            modifications,
+            save_path
+    ):
         """
 
         :param images:
@@ -19,6 +41,7 @@ class DatasetManager:
         :return:
         """
         for index, path_to_image in enumerate(images):
+
             image = cv2.imread(path_to_image)
             image_name = os.path.basename(path_to_image)
 
@@ -39,8 +62,9 @@ class DatasetManager:
 
             # Change extension
             if modifications.ext:
-                if not os.path.splitext(path_to_image)[-1].lower() in ".jpg":
-                    img_name = image_name.split(".")[0]
+                img_name, extension = os.path.splitext(image_name)
+
+                if not extension.lower() == ".jpg":
                     image_name = img_name + ".jpg"
 
             # Bring images to the same size
@@ -54,6 +78,7 @@ class DatasetManager:
             # Replace russian letters
             if modifications.fix_russian and modifications.name:
                 pass
+
             elif modifications.fix_russian:
 
                 russian_letters_space = {"а","б","в","г","д","е","ё","ж","з","и",
@@ -85,24 +110,6 @@ class DatasetManager:
             os.rename(paths[i], os.path.join(destination, image_name))
 
         print("Relocated:", proportion*100, " percent of images to:", destination)
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Dataset manipulations")
-
-    parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
-    parser.add_argument("-i", '--image', help="Path to an image to get modified")
-    parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
-
-    parser.add_argument('--ext', help="Changes extension to .jpg")
-    parser.add_argument('--split', type=float, help="Split a folder of images into training and valid portions")
-    parser.add_argument('--name', help="Renames images in ascending order")
-    parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
-    parser.add_argument('--new_size', help="Bring all images to the same size")
-    parser.add_argument('--fix_russian', help='Remove russian letters from names')
-    arguments = parser.parse_args()
-
-    return arguments
 
 
 def collect_images(folders, container):

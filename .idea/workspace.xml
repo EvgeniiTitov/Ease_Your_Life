@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="c9dc4d03-22a9-47bb-9156-a33ece9d3ac1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/image_dataset_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/image_dataset_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_cropper.py" beforeDir="false" afterPath="$PROJECT_DIR$/video_cropper.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,8 +17,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataset_preparation_YOLO.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="115">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
+            <state relative-caret-position="-1760">
+              <caret line="82" selection-start-line="82" selection-end-line="82" />
               <folding>
                 <element signature="e#560#569#0" expanded="true" />
               </folding>
@@ -25,12 +27,12 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/folder_sorter.py">
+        <entry file="file://$PROJECT_DIR$/image_dataset_manager.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="23">
-              <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
+            <state relative-caret-position="572">
+              <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
               <folding>
-                <element signature="e#283#293#0" expanded="true" />
+                <element signature="e#0#9#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -52,13 +54,13 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/dataset_manipulations.py" />
-        <option value="$PROJECT_DIR$/video_cropper.py" />
         <option value="$PROJECT_DIR$/operations_with_files_improved.py" />
         <option value="$PROJECT_DIR$/dataset_manager.py" />
-        <option value="$PROJECT_DIR$/image_dataset_manager.py" />
         <option value="$PROJECT_DIR$/files_manager.py" />
-        <option value="$PROJECT_DIR$/dataset_preparation_YOLO.py" />
         <option value="$PROJECT_DIR$/folder_sorter.py" />
+        <option value="$PROJECT_DIR$/dataset_preparation_YOLO.py" />
+        <option value="$PROJECT_DIR$/video_cropper.py" />
+        <option value="$PROJECT_DIR$/image_dataset_manager.py" />
       </list>
     </option>
   </component>
@@ -126,9 +128,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
+    <frame x="-2568" y="-8" width="2576" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13804491" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13750985" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -139,7 +142,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.22751896" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.048245613" />
+      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.16888888" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.032502707" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -148,11 +151,6 @@
     </layout>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/image_preprocessing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3055" />
-      </provider>
-    </entry>
     <entry file="file://D:/Desktop/Reserve_NNs/weights_configs/try_5_poles/poles_improved.cfg">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="294">
@@ -165,57 +163,62 @@
     <entry file="file://$PROJECT_DIR$/results_to_database.py" />
     <entry file="file://$PROJECT_DIR$/video_cropper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-634">
-          <caret line="15" column="28" lean-forward="true" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
+        <state relative-caret-position="484">
+          <caret line="22" lean-forward="true" selection-start-line="22" selection-end-line="22" />
           <folding>
             <element signature="e#60#70#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/image_dataset_manager.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1608">
-          <caret line="67" column="52" lean-forward="true" selection-start-line="67" selection-start-column="52" selection-end-line="67" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/files_manager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="226" column="8" lean-forward="true" selection-start-line="226" selection-start-column="8" selection-end-line="226" selection-end-column="8" />
+        <state relative-caret-position="1380">
+          <caret line="226" lean-forward="true" selection-start-line="226" selection-end-line="226" />
           <folding>
             <element signature="e#0#35#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/folder_sorter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="25">
+          <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
+          <folding>
+            <element signature="e#283#293#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/image_preprocessing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-396" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/dataset_manipulations.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4416">
+        <state relative-caret-position="3454">
           <caret line="184" selection-start-line="184" selection-end-line="184" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dataset_preparation_YOLO.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        <state relative-caret-position="-1760">
+          <caret line="82" selection-start-line="82" selection-end-line="82" />
           <folding>
             <element signature="e#560#569#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/folder_sorter.py">
+    <entry file="file://$PROJECT_DIR$/image_dataset_manager.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="23">
-          <caret line="15" column="51" selection-start-line="15" selection-start-column="51" selection-end-line="15" selection-end-column="51" />
+        <state relative-caret-position="572">
+          <caret line="68" lean-forward="true" selection-start-line="68" selection-end-line="68" />
           <folding>
-            <element signature="e#283#293#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
