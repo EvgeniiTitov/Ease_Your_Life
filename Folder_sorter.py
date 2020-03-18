@@ -1,5 +1,7 @@
 # EXAMPLE:
-# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\folder_sorter.py --folder=D:\Desktop\testing --classes concrete metal
+# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\folder_sorter.py
+# --folder=D:\Desktop\testing
+# --classes concrete metal
 # --save_path D:\Desktop\testing\Concrete D:\Desktop\testing\Metal
 
 # Make sure you provide classes and save paths in order!
@@ -16,19 +18,40 @@ parser.add_argument('--save_path', nargs='+', help="Path where to save an image 
 parser.add_argument('--delete', type=int, default=0, help="Delete an image after its been processed")
 arguments = parser.parse_args()
 
-def relocate_image(path_to_image, class_path, window_name):
+
+russian_letters_space = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
+                         "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+                         "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
+
+
+def relocate_image(
+        path_to_image,
+        class_path,
+        window_name,
+        image_counter
+):
 
     image_name = os.path.basename(path_to_image)
+    original_name = image_name
+
+    rus_letters = set(image_name) & russian_letters_space
+    if len(rus_letters) > 0:
+        image_name = "{:05}".format(image_counter) + '.jpg'
+        new_path = os.path.join(os.path.split(path_to_image)[0], image_name)
+        os.rename(path_to_image, new_path)
+        path_to_image = new_path
 
     try:
         image = cv2.imread(path_to_image, cv2.IMREAD_COLOR)
     except:
-        print("Failed to open: ", image_name)
+        print("Failed to open: ", original_name)
         return
 
-    flag = False
+    if image is None:
+        print("Failed to open:", original_name)
+        return
 
-    while not flag:
+    while True:
 
         cv2.imshow(window_name, image)
         key = cv2.waitKey(0)
@@ -44,9 +67,8 @@ def relocate_image(path_to_image, class_path, window_name):
 
                 shutil.copy(path_to_image, new_path)
 
-            # If Q gets pressed, move on to the next one
+            # If Q gets pressed, move on to the next image
             elif key == ord('q'):
-
                 return
 
             # if D is pressed, delete current image
@@ -59,25 +81,14 @@ def relocate_image(path_to_image, class_path, window_name):
 
             # If ESC gets pressed, remember where stopped, exit
             elif key == 27:
-
-                # path = r"C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts"
-                #
-                # with open(os.path.join(path, "last_processed.txt"), "w") as f:
-                #     f.write(image_name)
-                #     print("Saved last image processed in text document")
-
                 sys.exit()
 
 
 def main():
 
     # Process the source folder provided
-    if not arguments.folder:
-        print("No source folder has been provided. Giving up")
-        sys.exit()
-
-    if not os.path.isdir(arguments.folder):
-        print("The source folder provided is not actually a folder! Try again.")
+    if not arguments.folder or not os.path.isdir(arguments.folder):
+        print("ERROR: Wrong input. Giving up")
         sys.exit()
 
     source_folder = arguments.folder
@@ -115,14 +126,15 @@ def main():
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
     # Traverse over all images in the source folder, for each call relocating function
-    for filename in os.listdir(source_folder):
+    for index, filename in enumerate(os.listdir(source_folder)):
 
         if not any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".JPEG", ".jpeg", ".png", ".PNG"]):
             continue
 
         relocate_image(path_to_image=os.path.join(source_folder, filename),
                        class_path=class_save_path,
-                       window_name=window_name)
+                       window_name=window_name,
+                       image_counter=index)
 
     # Once all images have been processed, exit the script
     print("All images have been processed!")

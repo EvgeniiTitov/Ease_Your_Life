@@ -40,7 +40,7 @@ class DatasetManager:
         :param save_path:
         :return:
         """
-        for index, path_to_image in enumerate(images):
+        for index, path_to_image in enumerate(images, start=2966):
 
             image = cv2.imread(path_to_image)
             image_name = os.path.basename(path_to_image)
