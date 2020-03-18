@@ -1,5 +1,7 @@
 # python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\image_preprocessing.py --image=D:\Desktop\Test_Dir\228.jpg --save_path=D:\Desktop\Test_Dir\Modified --filter=1 --resize=1500,1000
 
+# Just to play with filters, see what we can do preprocessing wise
+
 # TO ADD:
 # Edge detection (Canny) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html
 # 2D Convolution (Custom image filtering) - https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_filtering/py_filtering.html

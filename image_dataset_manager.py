@@ -26,24 +26,29 @@ def parse_arguments():
 
 class DatasetManager:
 
-
+    @staticmethod
     def modify_images(
-            self,
             images,
             modifications,
             save_path
     ):
         """
-
         :param images:
         :param modifications:
         :param save_path:
         :return:
         """
-        for index, path_to_image in enumerate(images, start=2966):
+        for index, path_to_image in enumerate(images, start=1):
 
-            image = cv2.imread(path_to_image)
             image_name = os.path.basename(path_to_image)
+
+            try:
+                image = cv2.imread(path_to_image)
+            except:
+                print("Failed to open:", image_name)
+                continue
+
+            assert image is not None, "Image is None"
 
             # Remove low-res images
             if modifications.remove_lowres:
@@ -95,9 +100,13 @@ class DatasetManager:
 
         print("All images processed")
 
-    def split_into_training_valid(self, paths, destination, proportion):
+    @staticmethod
+    def split_into_training_valid(
+            paths,
+            destination,
+            proportion
+    ):
         """
-
         :param paths:
         :param destination:
         :param proportion:
@@ -141,7 +150,6 @@ def collect_images(folders, container):
 def main():
     arguments = parse_arguments()
     images_to_modify = list()
-    dataset_manager = DatasetManager()
 
     # Parse user input
     start = time.time()
@@ -188,18 +196,14 @@ def main():
         random.shuffle(images_to_modify)
 
     if arguments.split:
-        if not 0 < arguments.split <= 1:
-            print("Incorrect value of split")
-            sys.exit()
-        else:
-            proportion = arguments.split
 
-        dataset_manager.split_into_training_valid(paths=images_to_modify,
+        assert 0 < arguments.split <= 1, "Wrong split value"
+        DatasetManager().split_into_training_valid(paths=images_to_modify,
                                                   destination=save_path,
-                                                  proportion=proportion)
+                                                  proportion=arguments.split)
         return
 
-    dataset_manager.modify_images(images=images_to_modify,
+    DatasetManager().modify_images(images=images_to_modify,
                                   modifications=arguments,
                                   save_path=save_path)
 

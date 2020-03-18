@@ -25,6 +25,51 @@ parser.add_argument('--rename_img_txt',
 arguments = parser.parse_args()
 
 
+def get_images_names(path):
+    """
+    Collects path to all images to shuffle them afterwards because I am a human and I make mistakes alright
+    :param path: folder with images
+    :return: list if paths
+    """
+    container = []
+    for element in os.listdir(path):
+
+        if element.endswith('.txt'):
+           continue
+        container.append(element)
+
+    return container
+
+
+def generate_paths_YOLO():
+    '''
+    Fills .txt doc with names of all images to be fed to a NN relative to the darknet.exe
+    Enter source - folder with images
+    Destination - txt doc where save relative paths
+    '''
+    import random
+
+    relative_path = r'data/obj/'
+    source = input("Enter the source of images: ")
+    destination = input("Enter the destination TXT file: ")
+
+    if not os.path.isfile(destination):
+        raise TypeError("You haven't specified path to a TXT document")
+
+    shuffle = input("Do you want to have images shuffled? Y/N: ")
+
+    images = get_images_names(source)
+
+    if shuffle.upper().strip() == "Y":
+        random.shuffle(images)
+
+    with open(destination, 'w') as f:
+        for image in images:
+            f.write(os.path.join(relative_path, image) + '\n')
+
+    print("Done")
+
+
 def rename_ImgTxt(folders,
                   start_index=1):
     """
@@ -64,28 +109,25 @@ def rename_ImgTxt(folders,
 
 def replace_rus_letters(images):
     '''
-    Find images containing russian letters, rename them with some random names - numbers
+    Find images containing russian letters, rename them with some random names, will be renamed
+    properly later
     '''
     import random
 
-    # Turn it into sets and see if there is overlap. Way faster and efficient than this
-    letters = ["а","о","и","е","ё","э","ы","у","ю","я","г","в"]
-    images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
+    rus_letters = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
+                   "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
+                   "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
 
-    # russian_letters_space = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
-    #                          "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
-    #                          "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
-    #
-    # rus_letters_found = russian_letters_space & set(image_name)
-    #
-    # if len(rus_letters_found) > 0:
-    #     image_name = "{:05}".format(index) + '.jpg'
+
+    #images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
+
+    images_to_rename = [path for path in images if len(rus_letters & set(path)) > 0]
 
     print(f"Found {len(images_to_rename)} images with russian letters in them")
 
     for image in images_to_rename:
         path_to_folder = os.path.split(image)[0]
-        os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**5))+'.jpg'))
+        os.rename(image, os.path.join(path_to_folder, str(random.randint(1,10**6))+'.jpg'))
 
     print("Done")
 
