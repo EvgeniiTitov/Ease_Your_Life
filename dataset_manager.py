@@ -38,7 +38,7 @@ class DatasetManager:
         :param save_path:
         :return:
         """
-        for index, path_to_image in enumerate(images, start=1):
+        for index, path_to_image in enumerate(images, start=7248):
 
             image_name = os.path.basename(path_to_image)
 

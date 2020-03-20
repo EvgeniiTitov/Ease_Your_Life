@@ -1,5 +1,5 @@
-# One folder - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder=D:\Desktop\Test_Dir --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
-# Multiple folders - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\dataset_preparation_YOLO.py --folder D:\Desktop\Test_Dir\Modified D:\Desktop\Test_Dir\Detections --save_path=D:\Desktop\save_test --remove_lowres=250000 --name=1 --ext=1
+# One folder - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\YOLO_ds_manager.py --folder=D:\Desktop\Test_Dir --save_path=D:\Desktop\save_test --remove_lowres=1000 --name=1 --ext=1
+# Multiple folders - python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\YOLO_ds_manager.py --folder D:\Desktop\Test_Dir\Modified D:\Desktop\Test_Dir\Detections --save_path=D:\Desktop\save_test --remove_lowres=250000 --name=1 --ext=1
 
 # Could possibly add resize function to bring all images to the same size.
 import os
@@ -7,13 +7,12 @@ import cv2
 import sys
 import argparse
 import random
-
+from collections import defaultdict
 
 parser = argparse.ArgumentParser(description = "Dataset manipulations")
 parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder with images to get modified")
 parser.add_argument("-i", '--image', help="Path to an image to get modified")
 parser.add_argument('--save_path', help="Path where to save modified images")
-
 parser.add_argument('--ext', help="Changes extension to .jpg")
 parser.add_argument('--name', help="Renames images in ascending order")
 parser.add_argument('--remove_lowres', help="Removes all images with resolution lower than the threshold")
@@ -22,7 +21,44 @@ parser.add_argument('--remove_class', help="Remove class from txt documents to a
 parser.add_argument('--fix_indexes', help="Fix indexes from 1-2 to 0-1 for YOLO")
 parser.add_argument('--rename_img_txt',
                     help="Rename both images and txt from a certain number up to add to the end of already existing dataset")
+parser.add_argument('--check_balance', help="Check number of images of each class in the dataset")
 arguments = parser.parse_args()
+
+#TODO: Implement image downsampler to reduce images downloaded from unsplash
+
+def check_dataset_balance(
+        path_to_folder: str,
+        classes: defaultdict
+) -> defaultdict:
+    """
+    Checks whether a dataset is balanced recursively counting class numbers in TXT files
+    after labelling
+    :param path_to_folder:
+    :param classes: defaultdict to store counters
+    :return:
+    """
+    assert isinstance(classes, defaultdict), "Wrong dictionary type!"
+
+    for item in os.listdir(path_to_folder):
+
+        path_to_item = os.path.join(path_to_folder, item)
+
+        if os.path.isdir(path_to_item):
+            check_dataset_balance(path_to_item, classes)
+
+        elif item.endswith(".txt"):
+            with open(path_to_item, mode="r") as file:
+                for line in file:
+                    elements = line.split()
+
+                    if elements[0] == "0":
+                        classes["concrete"] += 1
+                    elif elements[0] == "1":
+                        classes["metal"] += 1
+                    elif elements[0] == "2":
+                        classes["wood"] += 1
+
+    return classes
 
 
 def get_images_names(path):
@@ -35,18 +71,19 @@ def get_images_names(path):
     for element in os.listdir(path):
 
         if element.endswith('.txt'):
-           continue
+            continue
         container.append(element)
 
     return container
 
 
+# TODO: Check and implement relative path generator
 def generate_paths_YOLO():
-    '''
+    """
     Fills .txt doc with names of all images to be fed to a NN relative to the darknet.exe
     Enter source - folder with images
     Destination - txt doc where save relative paths
-    '''
+    """
     import random
 
     relative_path = r'data/obj/'
@@ -70,8 +107,10 @@ def generate_paths_YOLO():
     print("Done")
 
 
-def rename_ImgTxt(folders,
-                  start_index=1):
+def rename_ImgTxt(
+        folders,
+        start_index=1
+):
     """
     Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
     with the same name?
@@ -117,7 +156,6 @@ def replace_rus_letters(images):
     rus_letters = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
                    "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
                    "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
-
 
     #images_to_rename = [path for path in images if any(letter in path.lower() for letter in letters)]
 
@@ -195,7 +233,10 @@ def remove_class(folders):
     print("All txt documents have been processed")
 
 
-def perform_modifications(images, save_path):
+def perform_modifications(
+        images,
+        save_path
+):
     '''
     Perform modifications on images one by one checking what modifications have been requested by a user.
     Save the images modified according to the save path provided.
@@ -232,7 +273,10 @@ def perform_modifications(images, save_path):
     print("All images have been processed")
 
 
-def collect_all_images(folder, images):
+def collect_all_images(
+        folder,
+        images
+):
     '''
     Recursively collect images in a folder and store them in a list. Return the list then.
     '''
@@ -256,6 +300,7 @@ def main():
     images_to_modify = list()
 
     if arguments.folder:
+
         # Launch removing class function and exit upon completion
         if arguments.remove_class:
             remove_class(arguments.folder)
@@ -269,6 +314,17 @@ def main():
         # Launch renaming TXTs and IMGs function and exit upon completion
         if arguments.rename_img_txt:
             rename_ImgTxt(arguments.folder)
+            sys.exit()
+
+        # Launch DS balance checker and exit
+        if arguments.check_balance:
+            classes = defaultdict(int)
+            check_dataset_balance(path_to_folder=arguments.folder[0], classes=classes)
+
+            print("\nRESULTS:")
+            for k, v in classes.items():
+                print(f"Class: {k}, images: {v}")
+
             sys.exit()
 
         # Option 1: If multiple folders provided - collect all images in them (do not include subfolders etc)
