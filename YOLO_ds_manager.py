@@ -51,12 +51,15 @@ def check_dataset_balance(
                 for line in file:
                     elements = line.split()
 
+                    if not elements:
+                        continue
+
                     if elements[0] == "0":
-                        classes["concrete"] += 1
+                        classes["insulator"] += 1
                     elif elements[0] == "1":
-                        classes["metal"] += 1
+                        classes["dump"] += 1
                     elif elements[0] == "2":
-                        classes["wood"] += 1
+                        classes["pole"] += 1
 
     return classes
 

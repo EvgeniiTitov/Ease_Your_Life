@@ -38,7 +38,7 @@ class DatasetManager:
         :param save_path:
         :return:
         """
-        for index, path_to_image in enumerate(images, start=7248):
+        for index, path_to_image in enumerate(images, start=1):
 
             image_name = os.path.basename(path_to_image)
 
@@ -48,7 +48,7 @@ class DatasetManager:
                 print("Failed to open:", image_name)
                 continue
 
-            assert image is not None, "Image is None"
+            assert image is not None, f"Failed to read the image {image_name}"
 
             # Remove low-res images
             if modifications.remove_lowres:
@@ -203,9 +203,11 @@ def main():
                                                   proportion=arguments.split)
         return
 
-    DatasetManager().modify_images(images=images_to_modify,
-                                  modifications=arguments,
-                                  save_path=save_path)
+    DatasetManager().modify_images(
+        images=images_to_modify,
+        modifications=arguments,
+        save_path=save_path
+    )
 
 if __name__ == "__main__":
     main()
