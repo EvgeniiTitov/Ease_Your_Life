@@ -39,15 +39,12 @@ class DatasetManager:
         :return:
         """
         for index, path_to_image in enumerate(images, start=1):
-
             image_name = os.path.basename(path_to_image)
-
             try:
                 image = cv2.imread(path_to_image)
             except:
                 print("Failed to open:", image_name)
                 continue
-
             assert image is not None, f"Failed to read the image {image_name}"
 
             # Remove low-res images
@@ -68,7 +65,6 @@ class DatasetManager:
             # Change extension
             if modifications.ext:
                 img_name, extension = os.path.splitext(image_name)
-
                 if not extension.lower() == ".jpg":
                     image_name = img_name + ".jpg"
 
@@ -85,19 +81,17 @@ class DatasetManager:
                 pass
 
             elif modifications.fix_russian:
-
-                russian_letters_space = {"а","б","в","г","д","е","ё","ж","з","и",
-                                   "й","к","л","м","н","о","п","р","с","т",
-                                   "у","ф","х","ц","ч","ш","щ","ь","э","ю","я"," "}
-
+                russian_letters_space = {
+                    "а","б","в","г","д","е","ё","ж","з","и",
+                    "й","к","л","м","н","о","п","р","с","т",
+                    "у","ф","х","ц","ч","ш","щ","ь","э","ю","я"," "
+                }
                 rus_letters_found = russian_letters_space & set(image_name)
-
                 if len(rus_letters_found) > 0:
                     image_name = "{:05}".format(index) + '.jpg'
 
             # Save image modified
             cv2.imwrite(os.path.join(save_path, image_name), image)
-
         print("All images processed")
 
     @staticmethod
@@ -113,12 +107,11 @@ class DatasetManager:
         :return:
         """
         nb_images_to_relocate = int(len(paths) * proportion)
-
         for i in range(nb_images_to_relocate):
             image_name = os.path.split(paths[i])[-1]
             os.rename(paths[i], os.path.join(destination, image_name))
 
-        print("Relocated:", proportion*100, " percent of images to:", destination)
+        print("Relocated:", proportion * 100, " percent of images to:", destination)
 
 
 def collect_images(folders, container):
@@ -129,14 +122,12 @@ def collect_images(folders, container):
     :return:
     """
     for folder in folders:
-
         if not os.path.isdir(folder):
             print(f"{folder} is not a folder. Skipped")
             continue
 
         for file in os.listdir(folder):
             file_path = os.path.join(folder, file)
-
             if any(file.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
                 container.append(file_path)
             else:
@@ -153,7 +144,6 @@ def main():
 
     # Parse user input
     start = time.time()
-
     if arguments.folder:
         # Multiple folders provided. Collect paths to all images to process.
         if len(arguments.folder) > 1:
@@ -196,11 +186,12 @@ def main():
         random.shuffle(images_to_modify)
 
     if arguments.split:
-
         assert 0 < arguments.split <= 1, "Wrong split value"
-        DatasetManager().split_into_training_valid(paths=images_to_modify,
-                                                  destination=save_path,
-                                                  proportion=arguments.split)
+        DatasetManager().split_into_training_valid(
+            paths=images_to_modify,
+            destination=save_path,
+            proportion=arguments.split
+        )
         return
 
     DatasetManager().modify_images(
