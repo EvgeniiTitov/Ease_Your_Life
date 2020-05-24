@@ -24,6 +24,7 @@ def parse_arguments():
 
 
 class DatasetManager:
+
     @staticmethod
     def modify_images(
             images,

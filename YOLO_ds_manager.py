@@ -24,7 +24,26 @@ parser.add_argument('--rename_img_txt',
 parser.add_argument('--check_balance', help="Check number of images of each class in the dataset")
 arguments = parser.parse_args()
 
-#TODO: Implement image downsampler to reduce images downloaded from unsplash
+
+def generate_empty_txt(folder_with_image, save_path):
+    """
+    Generates empty .txt files for image that do not contain object a neural net needs to learn
+    to detect
+    :param folder_with_image:
+    :param save_path:
+    :return:
+    """
+    for item in os.listdir(folder_with_image):
+        path_to_item = os.path.join(folder_with_image, item)
+        if not os.path.isfile(path_to_item):
+            continue
+
+        item_name = os.path.splitext(item)[0]
+        txt_file_name = os.path.join(save_path, item_name + ".txt")
+        with open(txt_file_name, "w") as _:
+            pass
+
+    return
 
 def check_dataset_balance(
         path_to_folder: str,
@@ -55,11 +74,11 @@ def check_dataset_balance(
                         continue
 
                     if elements[0] == "0":
-                        classes["insulator"] += 1
+                        classes["concrete"] += 1
                     elif elements[0] == "1":
-                        classes["dump"] += 1
+                        classes["metal"] += 1
                     elif elements[0] == "2":
-                        classes["pole"] += 1
+                        classes["wood"] += 1
 
     return classes
 
@@ -70,13 +89,13 @@ def get_images_names(path):
     :param path: folder with images
     :return: list if paths
     """
-    container = []
+    names = []
     for element in os.listdir(path):
         if element.endswith('.txt'):
             continue
-        container.append(element)
+        names.append(element)
 
-    return container
+    return names
 
 
 # TODO: Check and implement relative path generator
@@ -299,8 +318,14 @@ def collect_all_images(
 
 
 def main():
-    generate_paths_YOLO()
+    generate_empty_txt(
+        folder_with_image=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo",
+        save_path=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
+    )
     sys.exit()
+
+    # generate_paths_YOLO()
+    # sys.exit()
 
     images_to_modify = list()
 
