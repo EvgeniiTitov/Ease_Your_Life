@@ -12,7 +12,6 @@ def parse_arguments():
     parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
     parser.add_argument("-i", '--image', help="Path to an image to get modified")
     parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
-
     parser.add_argument('--ext', help="Changes extension to .jpg")
     parser.add_argument('--split', type=float, help="Split a folder of images into training and valid portions")
     parser.add_argument('--name', help="Renames images in ascending order")
@@ -25,13 +24,12 @@ def parse_arguments():
 
 
 class DatasetManager:
-
     @staticmethod
     def modify_images(
             images,
             modifications,
             save_path
-    ):
+    ) -> None:
         """
         :param images:
         :param modifications:
@@ -96,10 +94,10 @@ class DatasetManager:
 
     @staticmethod
     def split_into_training_valid(
-            paths,
-            destination,
-            proportion
-    ):
+            paths: list,
+            destination: str,
+            proportion: float
+    ) -> None:
         """
         :param paths:
         :param destination:
@@ -114,7 +112,7 @@ class DatasetManager:
         print("Relocated:", proportion * 100, " percent of images to:", destination)
 
 
-def collect_images(folders, container):
+def collect_images(folders:list, container:list) -> list:
     """
     Recursively collects all images it can find and stores in the container.
     :param folders:
@@ -123,7 +121,6 @@ def collect_images(folders, container):
     """
     for folder in folders:
         if not os.path.isdir(folder):
-            print(f"{folder} is not a folder. Skipped")
             continue
 
         for file in os.listdir(folder):

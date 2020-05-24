@@ -72,7 +72,6 @@ def get_images_names(path):
     """
     container = []
     for element in os.listdir(path):
-
         if element.endswith('.txt'):
             continue
         container.append(element)
@@ -300,6 +299,9 @@ def collect_all_images(
 
 
 def main():
+    generate_paths_YOLO()
+    sys.exit()
+
     images_to_modify = list()
 
     if arguments.folder:
