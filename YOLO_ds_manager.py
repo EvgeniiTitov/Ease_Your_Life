@@ -74,11 +74,11 @@ def check_dataset_balance(
                         continue
 
                     if elements[0] == "0":
-                        classes["concrete"] += 1
+                        classes["insulator"] += 1
                     elif elements[0] == "1":
-                        classes["metal"] += 1
+                        classes["dumper"] += 1
                     elif elements[0] == "2":
-                        classes["wood"] += 1
+                        classes["pole"] += 1
 
     return classes
 
@@ -318,11 +318,11 @@ def collect_all_images(
 
 
 def main():
-    generate_empty_txt(
-        folder_with_image=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo",
-        save_path=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
-    )
-    sys.exit()
+    # generate_empty_txt(
+    #     folder_with_image=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo",
+    #     save_path=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
+    # )
+    # sys.exit()
 
     # generate_paths_YOLO()
     # sys.exit()

@@ -82,7 +82,7 @@ def main():
         process.join()
 
     print(f"All processes successfully joined. Finished in: {round(time.time() - s)} seconds")
-    print("All images have been downsampled and saved to:", save_path)
+    print("All images have been renamed and saved to:", save_path)
 
 
 if __name__ == "__main__":
