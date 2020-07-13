@@ -77,8 +77,9 @@ class DownSamples:
 
 
 def main():
-    path_to_folder = r"D:\Desktop\Reserve_NNs\Datasets\random_images"
-    save_path = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED"
+    NEW_HEIGHT = 200
+    path_to_folder = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_RENAMED"
+    save_path = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_SMALL"
     paths_to_images = list()
     nb_of_cores = multiprocessing.cpu_count()
 
@@ -96,7 +97,7 @@ def main():
     for i in range(nb_of_cores):
         process = multiprocessing.Process(
             target=DownSamples.downsample_images,
-            args=[splits[i], save_path]
+            args=[splits[i], save_path, NEW_HEIGHT]
         )
         process.start()
         processes.append(process)

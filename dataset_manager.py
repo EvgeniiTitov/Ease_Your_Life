@@ -44,7 +44,6 @@ class DatasetManager:
             except:
                 print("Failed to open:", image_name)
                 continue
-            assert image is not None, f"Failed to read the image {image_name}"
 
             # Remove low-res images
             if modifications.remove_lowres:
@@ -90,7 +89,12 @@ class DatasetManager:
                     image_name = "{:05}".format(index) + '.jpg'
 
             # Save image modified
-            cv2.imwrite(os.path.join(save_path, image_name), image)
+            try:
+                cv2.imwrite(os.path.join(save_path, image_name), image)
+            except Exception as e:
+                print(f"Failed while saving: {image_name}. Error: {e}")
+                continue
+
         print("All images processed")
 
     @staticmethod
@@ -145,6 +149,7 @@ def main():
     if arguments.folder:
         # Multiple folders provided. Collect paths to all images to process.
         if len(arguments.folder) > 1:
+            print("More than 1 folder provided")
             images_to_modify = collect_images(arguments.folder, images_to_modify)
 
         elif len(arguments.folder) == 1:

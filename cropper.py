@@ -100,8 +100,8 @@ def process_images_and_txts(path_to_images: List[str], path_to_txts: List[str], 
 
 
 def main():
-    path_to_data = r"D:\Desktop\Reserve_NNs\Datasets\RELABLED\COMPONENTS"
-    save_path = r"D:\Desktop\Reserve_NNs\Datasets\raw_data\DEFECTS\dumpers\new"
+    path_to_data = r"D:\Desktop\Reserve_NNs\Datasets\DATASETS_FOR_TEACHING\components\components_1-2573"
+    save_path = r"D:\Desktop\Reserve_NNs\Datasets\raw_data\DEFECTS\dumpers\Cropped\cropped_from_firstLabelling"
     class_to_crop_out = 1  # dumpers index during image labelling
 
     # Collect paths to images and corresponding txts with labels

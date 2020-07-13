@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 
+
 parser = argparse.ArgumentParser(description='Frame Cropper in OPENCV')
 parser.add_argument('--folder', help='Path to a folder containing videos.')
 parser.add_argument('--video', help='Path to a video file.')
@@ -20,16 +21,13 @@ def crop_frames(cap, save_path, frame_N, output_name):
     :return:
     '''
     frame_counter = 0
-
     while cv2.waitKey(1) < 0:
-
         has_frame, frame = cap.read()
-
         if not has_frame:
             print("Video", output_name, "has been processed.")
-            return
+            break
 
-        cv2.imshow(window_name, frame)
+        cv2.imshow("", frame)
 
         if frame_counter < 200:  # Skip first section of the video
             frame_counter += 1
@@ -37,24 +35,22 @@ def crop_frames(cap, save_path, frame_N, output_name):
             continue
 
         if frame_counter % frame_N == 0:
-            cv2.imwrite(os.path.join(save_path, output_name + '_' + str(frame_counter) + '.jpg'), frame)
+            try:
+                cv2.imwrite(os.path.join(save_path, output_name + '_' + str(frame_counter) + '.jpg'), frame)
+            except Exception as e:
+                print(f"Failed while saving a frame. Error: {e}")
+                continue
 
         print(frame_counter)
         frame_counter += 1
 
 def main():
-    global window_name
-
     if not arguments.save_path:
         print("You have to specify the path to a folder where cropped frames will be saved.")
         sys.exit()
 
     save_path = arguments.save_path  # Path to save frames cropped
-
     once_in_N_frames = arguments.frame  # Save a frame once in N frames
-
-    window_name = "Cropping frames good sir"
-    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
     if arguments.video:
         video_path = arguments.video
@@ -63,7 +59,11 @@ def main():
             raise IOError("The provided video is not a video")
 
         output_name = os.path.basename(video_path)[:-4]
-        cap = cv2.VideoCapture(video_path)
+        try:
+            cap = cv2.VideoCapture(video_path)
+        except Exception as e:
+            print("Failed while creating the cap object")
+            raise e
 
         if not cap.isOpened():
             print("Failed to open the cap for:", output_name)
@@ -84,7 +84,11 @@ def main():
             video_path = os.path.join(arguments.folder, video)
             output_name = video[:-4]
 
-            cap = cv2.VideoCapture(video_path)
+            try:
+                cap = cv2.VideoCapture(video_path)
+            except Exception as e:
+                print("Failed to create the cap object for:", output_name, "Skipped")
+                continue
 
             if not cap.isOpened():
                 print("Failed to open the cap for:", output_name)
