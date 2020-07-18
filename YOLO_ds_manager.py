@@ -128,24 +128,19 @@ def generate_paths_YOLO():
     print("Done")
 
 
-def rename_ImgTxt(
-        folders,
-        start_index=1
-):
+def rename_ImgTxt(folders: list, save_path: str, start_index: int = 1) -> None:
     """
     Not the most efficient approach, two O(n)s in a sequence. Can we do it in one loop by processing pairs of image-txt
     with the same name?
     """
     start = start_index
 
-    def rename_txts(txts_to_rename, start):
-
+    def rename_txts(txts_to_rename: list, start: int) -> None:
         for txt in txts_to_rename:
             new_txt_name = '{:05}'.format(start) + ".txt"
             os.rename(txt, os.path.join(os.path.split(txt)[0], new_txt_name))
             start += 1
-
-        print("Done")
+        return
 
     for folder in folders:
         txts_to_rename = list()
@@ -161,10 +156,60 @@ def rename_ImgTxt(
 
             path_to_img = os.path.join(folder, filename)
             new_img_name = '{:05}'.format(start_index) + os.path.splitext(filename)[-1]
-            os.rename(path_to_img, os.path.join(folder, new_img_name))
+            try:
+                os.rename(path_to_img, os.path.join(folder, new_img_name))
+            except Exception as e:
+                print(f"Failed to rename: {path_to_img}. Error: {e}. Skipped")
+                continue
             start_index += 1
 
         rename_txts(txts_to_rename, start)
+
+    return
+
+
+def relocate_img_txt(folders: list, save_path: str, start: int = 0) -> None:
+    for folder in folders:
+        # Collect all images and txts to relocate
+        paths_to_images = list()
+        paths_to_txts = list()
+        for filename in os.listdir(folder):
+            if filename.endswith("txt"):
+                paths_to_txts.append(os.path.join(folder, filename))
+            elif any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
+                paths_to_images.append(os.path.join(folder, filename))
+            else:
+                continue
+
+        assert len(paths_to_images) == len(paths_to_txts), "Number of images and txts with labels do not match"
+
+        # Relocate image-txt pairs to a new folder with new names
+        while paths_to_images:
+            path_to_image = paths_to_images.pop(0)
+            path_to_txt = paths_to_txts.pop(0)
+            assert os.path.splitext(os.path.basename(path_to_image))[0] ==\
+                                            os.path.splitext(os.path.basename(path_to_txt))[0], "Something went wrong"
+
+            new_img_name = '{:05}'.format(start) + os.path.splitext(path_to_image)[-1]
+            new_txt_name = '{:05}'.format(start) + ".txt"
+            try:
+                os.rename(path_to_image, os.path.join(save_path, new_img_name))
+                os.rename(path_to_txt, os.path.join(save_path, new_txt_name))
+            except Exception as e:
+                print(f"Failed while renaming: {path_to_image} and {path_to_txt}. Error: {e}. Skipped")
+                continue
+            start += 1
+
+    return
+
+
+def rename_txts(path_to_folder: str, save_path: str, start: int = 0) -> None:
+    for filename in os.listdir(path_to_folder):
+        if not filename.endswith("txt"):
+            continue
+        path_to_txt = os.path.join(path_to_folder, filename)
+        new_name = '{:05}'.format(start) + ".txt"
+
 
 
 def replace_rus_letters(images):
@@ -343,7 +388,8 @@ def main():
 
         # Launch renaming TXTs and IMGs function and exit upon completion
         if arguments.rename_img_txt:
-            rename_ImgTxt(arguments.folder)
+            #rename_ImgTxt(arguments.folder, arguments.save_path)
+            relocate_img_txt(arguments.folder, arguments.save_path)
             sys.exit()
 
         # Launch DS balance checker and exit

@@ -156,7 +156,6 @@ def main():
             if not os.path.isdir(arguments.folder[0]):  # nargs return a list
                 print(f"{arguments.folder[0]} is not a folder.")
                 sys.exit()
-
             images_to_modify = collect_images(arguments.folder, images_to_modify)
 
         if not images_to_modify:
@@ -166,7 +165,6 @@ def main():
         print(f"{len(images_to_modify)} images collected in {time.time() - start} seconds")
 
     elif arguments.image:
-
         if not os.path.isfile(arguments.image):
             print("You haven't provided an image")
             sys.exit()

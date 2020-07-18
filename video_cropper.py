@@ -29,10 +29,10 @@ def crop_frames(cap, save_path, frame_N, output_name):
 
         cv2.imshow("", frame)
 
-        if frame_counter < 200:  # Skip first section of the video
-            frame_counter += 1
-            print(frame_counter)
-            continue
+        # if frame_counter < 200:  # Skip first section of the video
+        #     frame_counter += 1
+        #     print(frame_counter)
+        #     continue
 
         if frame_counter % frame_N == 0:
             try:
@@ -56,7 +56,7 @@ def main():
         video_path = arguments.video
 
         if not any(video_path.endswith(ext) for ext in ['.mp4', '.MP4']):
-            raise IOError("The provided video is not a video")
+            raise IOError("The provided extension is not supported")
 
         output_name = os.path.basename(video_path)[:-4]
         try:
@@ -78,7 +78,7 @@ def main():
 
         for video in os.listdir(arguments.folder):
 
-            if not any(video.endswith(ext) for ext in ['.mp4', '.MP4']):  # Discard everything except what we are after
+            if not any(video.endswith(ext) for ext in ['.mp4', '.MP4', ".avi", ".AVI"]):  # Discard everything except what we are after
                 continue
 
             video_path = os.path.join(arguments.folder, video)
