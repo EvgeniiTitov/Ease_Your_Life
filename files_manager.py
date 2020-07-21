@@ -6,8 +6,7 @@ import shutil
 
 class FilesManager:
 
-    def search_file(self, filename,
-                          search_locations = ("C:", "D:")):
+    def search_file(self, filename, search_locations = ("C:", "D:")):
         """
         Searches for the filename provided. By default checks all computer. Optimize search, too slow.
         :param filename:
@@ -17,7 +16,6 @@ class FilesManager:
 
         # USE A GENERATOR HERE AND CHECK WITH THE WORD EXPERIENCE
         potential_findings = list()
-
         for directory in search_locations:
             for dir_path, dir_names, file_names in os.walk(directory):
                 for file_name in file_names:
@@ -68,7 +66,6 @@ class FilesManager:
         :return:
         """
         if not os.path.isfile(to_relocate):
-
             if len(os.listdir(to_relocate)) == 0:
                 print("Empty folder. Nothing to move")
                 return
@@ -215,16 +212,12 @@ def main():
         if action.upper().strip() == "EXIT":
             print("Exiting")
             sys.exit()
-
         elif action.upper().strip() == "SEARCH":
             manager.search()
-
         elif action.upper().strip() == "DELETE":
             manager.delete()
-
         elif action.upper().strip() == "RELOCATE":
             manager.relocate()
-
         elif action.upper().strip() == "EXPLORE":
             manager.explore()
 

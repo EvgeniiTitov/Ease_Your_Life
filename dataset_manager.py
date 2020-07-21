@@ -8,7 +8,6 @@ import time
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Dataset manipulations")
-
     parser.add_argument("-f", '--folder', nargs="+", help="Path to a folder(s) with images to get modified")
     parser.add_argument("-i", '--image', help="Path to an image to get modified")
     parser.add_argument('--save_path', default=r"D:\Desktop\DSmanager_modified", help="Path where to save modified images")
@@ -24,7 +23,6 @@ def parse_arguments():
 
 
 class DatasetManager:
-
     @staticmethod
     def modify_images(
             images,
@@ -139,6 +137,7 @@ def collect_images(folders:list, container:list) -> list:
                     continue
 
     return container
+
 
 def main():
     arguments = parse_arguments()

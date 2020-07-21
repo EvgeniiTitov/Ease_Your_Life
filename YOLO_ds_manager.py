@@ -74,11 +74,11 @@ def check_dataset_balance(
                         continue
 
                     if elements[0] == "0":
-                        classes["insulator"] += 1
+                        classes["countdown"] += 1
                     elif elements[0] == "1":
-                        classes["dumper"] += 1
+                        classes["new_world"] += 1
                     elif elements[0] == "2":
-                        classes["pole"] += 1
+                        classes["paknsave"] += 1
 
     return classes
 
@@ -168,7 +168,7 @@ def rename_ImgTxt(folders: list, save_path: str, start_index: int = 1) -> None:
     return
 
 
-def relocate_img_txt(folders: list, save_path: str, start: int = 0) -> None:
+def relocate_img_txt(folders: list, save_path: str, start: int = 2350) -> None:
     for folder in folders:
         # Collect all images and txts to relocate
         paths_to_images = list()
@@ -364,8 +364,8 @@ def collect_all_images(
 
 def main():
     # generate_empty_txt(
-    #     folder_with_image=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo",
-    #     save_path=r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
+    #     folder_with_image=r"D:\Desktop\SIngleView\dataset_v1\random_imgs",
+    #     save_path=r"D:\Desktop\SIngleView\dataset_v1\random_imgs"
     # )
     # sys.exit()
 

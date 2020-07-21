@@ -8,6 +8,11 @@ import os
 import io
 
 
+'''
+Implementation found online 
+'''
+
+
 def fetch_image_urls(query: str, max_links_to_fetch: int, wd: webdriver, sleep_between_interactions: float = 1):
     def scroll_to_end(wd):
         wd.execute_script("window.scrollTo(0, document.body.scrollHeight);")

@@ -33,14 +33,12 @@ def relocate_image(
 
     image_name = os.path.basename(path_to_image)
     original_name = image_name
-
     rus_letters = set(image_name) & russian_letters_space
     if len(rus_letters) > 0:
         image_name = "{:05}".format(image_counter) + '.jpg'
         new_path = os.path.join(os.path.split(path_to_image)[0], image_name)
         os.rename(path_to_image, new_path)
         path_to_image = new_path
-
     try:
         image = cv2.imread(path_to_image, cv2.IMREAD_COLOR)
     except:
@@ -52,12 +50,9 @@ def relocate_image(
         return
 
     while True:
-
         cv2.imshow(window_name, image)
         key = cv2.waitKey(0)
-
         for button, element in class_path.keys():
-
             # Wait until a key gets pressed. Check if it is the one we track
             if key == ord(str(button)):
                 print("You've pressed:", chr(key))
@@ -66,11 +61,9 @@ def relocate_image(
                 print(f"Image {image_name} will be saved to:", new_path)
 
                 shutil.copy(path_to_image, new_path)
-
             # If Q gets pressed, move on to the next image
             elif key == ord('q'):
                 return
-
             # if D is pressed, delete current image
             elif key == ord('d'):
                 if arguments.delete:
@@ -78,7 +71,6 @@ def relocate_image(
                     os.remove(path_to_image)
 
                 return
-
             # If ESC gets pressed, remember where stopped, exit
             elif key == 27:
                 sys.exit()
@@ -127,15 +119,14 @@ def main():
 
     # Traverse over all images in the source folder, for each call relocating function
     for index, filename in enumerate(os.listdir(source_folder)):
-
         if not any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".JPEG", ".jpeg", ".png", ".PNG"]):
             continue
-
-        relocate_image(path_to_image=os.path.join(source_folder, filename),
-                       class_path=class_save_path,
-                       window_name=window_name,
-                       image_counter=index)
-
+        relocate_image(
+            path_to_image=os.path.join(source_folder, filename),
+            class_path=class_save_path,
+            window_name=window_name,
+            image_counter=index
+        )
     # Once all images have been processed, exit the script
     print("All images have been processed!")
 
