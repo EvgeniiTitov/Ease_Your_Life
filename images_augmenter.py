@@ -1,0 +1,310 @@
+from typing import List
+import skimage
+import cv2
+import os
+import argparse
+import random
+import numpy as np
+import imutils
+
+
+ALLOWED_EXTS = [".jpg", ".jpeg", ".png"]
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("transparent", help="Folder to images to augment RGBA")
+    parser.add_argument("background", help="Folder to backgrounds")
+    parser.add_argument("--save_path", default=r"", help="Folder where augmented images will be saved")
+    parser.add_argument("--total_images", type=int, default=100, help="Number of augmentation images required")
+    parser.add_argument("--rotation_limit", type=int, default=90, help="Max angle of rotation")
+    parser.add_argument("--deformation_limit", type=float, default=.25,
+                        help="Max deformation value. 0.2 -> 20% max deformation applied to either height or width")
+    parser.add_argument("--resize_range", nargs="+", default=[0.2, 0.6],
+                        help="Min and max width of augmented image relatively to the background image's width")
+    parser.add_argument("--noise_thresh", type=float, default=0.75,
+                        help="Thresh for applying random noise on top of the augmented image")
+    parser.add_argument("--blur_thresh", type=float, default=0.85, help="Thesh for blurring the output augmented image")
+    parser.add_argument("--rotation_thresh", type=float, default=0.5, help="Thresh to rotate rgba image on random angle")
+    parser.add_argument("--deform_thresh", type=float, default=0.5, help="Thresh to deform (stretch/squash) rgba image")
+    arguments = parser.parse_args()
+
+    return arguments
+
+
+class Augmenter:
+    NOISES = ['gaussian', 'speckle', 'salt', 'pepper']
+    FILTER_SIZES = [(7, 7), (11, 11)]
+
+    def __init__(
+            self,
+            augmentation: list,
+            transparency_range: List[float],
+            noise_thresh: float = 0.8,
+            blur_thresh: float = 0.9,
+            rotation_thresh: float = 0.5,
+            deformation_thresh: float = 0.5
+    ):
+        self.augmentation = augmentation
+        self.transp_min, self.transp_max = transparency_range
+        self.noise_threshold = noise_thresh
+        self.blur_thresh = blur_thresh
+        self.rotation_thresh = rotation_thresh
+        self.deformation_thresh = deformation_thresh
+
+    def __call__(self, image: np.ndarray, background_image: np.ndarray) -> np.ndarray:
+        background_image_size = background_image.shape[0:2]
+        # Apply augmentation
+        for transform in self.augmentation:
+            if transform.name == "rotation" and random.random() < self.rotation_thresh:
+                continue
+            elif transform.name == "deformation" and random.random() < self.deformation_thresh:
+                continue
+            image = transform(image, background_image_size)
+
+        # Pick transparency value
+
+        # Combine the two images - allows the image go beyond the edges a little bit - free augmentation
+        x = random.randint(0, background_image.shape[1] - int(image.shape[1] * .8))
+        y = random.randint(0, background_image.shape[0] - int(image.shape[0] * .8))
+        image = self.overlay(background_image, image, x, y)
+
+        # Apply noise
+        if random.random() >= self.noise_threshold:
+            image = self.apply_noise(image)
+        elif random.random() >= self.blur_thresh:
+            image = self.apply_blur(image)
+
+        return image
+
+    def apply_blur(self, image: np.ndarray) -> np.ndarray:
+        filter_ = random.choice(self.FILTER_SIZES)
+
+        return cv2.GaussianBlur(image, filter_, 0)
+
+    def apply_noise(self, image: np.ndarray) -> np.ndarray:
+        noise_type = random.choice(self.NOISES)
+        image = skimage.util.random_noise(image, mode=noise_type)
+
+        return image * 255.0
+
+    def overlay(self, background: np.ndarray, overlay: np.ndarray, x: int, y: int) -> np.ndarray:
+        "Courtesy of stackoverflow.com/questions/40895785/using-opencv-to-overlay-transparent-image-onto-another-image"
+        background_width = background.shape[1]
+        background_height = background.shape[0]
+        if x >= background_width or y >= background_height:
+            return background
+
+        h, w = overlay.shape[0], overlay.shape[1]
+        if x + w > background_width:
+            w = background_width - x
+            overlay = overlay[:, :w]
+        if y + h > background_height:
+            h = background_height - y
+            overlay = overlay[:h]
+        if overlay.shape[2] < 4:
+            overlay = np.concatenate(
+                [
+                    overlay,
+                    np.ones((overlay.shape[0], overlay.shape[1], 1), dtype=overlay.dtype) * 255
+                ],
+                axis=2,
+            )
+        overlay_image = overlay[..., :3]
+        mask = overlay[..., 3:] / 255.0
+        background[y:y + h, x:x + w] = (1.0 - mask) * background[y:y + h, x:x + w] + mask * overlay_image
+
+        return background
+
+
+class Rotation:
+    """
+    Random logo rotation within the allowed range [-range:range]
+    """
+    def __init__(self, rotation_limit: int):
+        self.name = "rotation"
+        assert 0 <= rotation_limit <= 180, "Wrong rotation range value. Expected: [0, 180]"
+        self.range = rotation_limit
+
+    def __call__(self, image: np.ndarray, background_size: List[int]) -> np.ndarray:
+        rotation_angle = random.randint(-self.range, self.range)
+        #rotated_image = imutils.rotate(image, rotation_angle)
+        rotated_image = imutils.rotate_bound(image, rotation_angle)
+
+        return rotated_image
+
+
+class Resize:
+    """
+    Resizes logo within the allowed range keeping its aspect ratio since its already been deformed
+    """
+    def __init__(self, resize_range: List[float]):
+        self.name = "resize"
+        assert len(resize_range) == 2, "Expected 2 values for the resize range"
+        assert resize_range[0] < resize_range[1], "Wrong resize range values"
+        assert all(0.0 < e < 1.0 for e in resize_range), "Wrong resize range values"
+        self.min_allowed, self.max_allowed = resize_range
+
+    def __call__(self, image: np.ndarray, background_size: List[int]) -> np.ndarray:
+        background_height, background_width = background_size
+        image_height, image_width = image.shape[:2]
+        resize_factor = random.randint(int(self.min_allowed * 100), int(self.max_allowed * 100)) / 100
+
+        # Take longer side and rescale it according to the randomly picked resize_factor, which is relative to the
+        # background image side
+        if image.shape[0] > image.shape[1]:
+            new_image_height = background_height * resize_factor
+            aspect_ratio_factor = new_image_height / image_height
+            new_image_width = image_width * aspect_ratio_factor
+        else:
+            new_image_width = background_width * resize_factor  # size of rgba image relatively to the background image
+            aspect_ratio_factor = new_image_width / image_width
+            new_image_height = image_height * aspect_ratio_factor
+        resized_image = cv2.resize(image, dsize=(int(new_image_width), int(new_image_height)))
+
+        return resized_image
+
+
+class Deformation:
+    """
+    Logo deformations such as squashing and stretching. Default range +/- 20%
+    """
+    def __init__(self, deformation_limit: float = 0.2):
+        self.name = "deformation"
+        assert 0 <= deformation_limit < 1.0, "Wrong deformation limit range. Expected 0 - 99%"
+        self.limit = deformation_limit
+
+    def __call__(self, image: np.ndarray, background_size: List[int]) -> np.ndarray:
+        # Select random: deformation factor
+        deformation_factor = random.randrange(int(100 - self.limit * 100), int(100 + self.limit * 100)) / 100.0
+        # Pick axis (height or width) will will be applied by the deformation factor
+        axis = random.randint(0, 1)
+        # Deform the image
+        image_height, image_width = image.shape[:2]
+        new_size = (image_width, int(image_height * deformation_factor)) if axis == 0 else \
+                                                            (int(image_width * deformation_factor), image_height)
+        deformed_image = cv2.resize(image, dsize=new_size)
+
+        return deformed_image
+
+
+def get_paths_to_images(folder: str, img_type: str) -> List[str]:
+    if img_type == "rgba":
+        return [os.path.join(folder, file) for file in os.listdir(folder) if \
+                                                os.path.splitext(file)[-1].lower() in ".png"]
+    else:
+        return [os.path.join(folder, file) for file in os.listdir(folder) if \
+                                                os.path.splitext(file)[-1].lower() in ALLOWED_EXTS]
+
+
+def check_alpha_channel_exists(paths: List[str]) -> List[str]:
+    paths_to_confirmed_rgba_images = list()
+    for path in paths:
+        try:
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        except Exception as e:
+            print(f"\n[ERROR] Failed to open transparent image: {path}. Error: {e}. Skipped")
+            continue
+        if image.shape[-1] != 4:
+            print(f"Image {path} is not RGBA")
+            continue
+        paths_to_confirmed_rgba_images.append(path)
+
+    return paths_to_confirmed_rgba_images
+
+
+def augment_images(
+        rgba_image_paths: List[str],
+        background_image_paths: List[str],
+        augmenter: Augmenter,
+        save_path: str,
+        total_number: int
+) -> None:
+    total_augmented = 0
+    while True:
+        if total_augmented == total_number:
+            break
+        # Pick random rgba image and background image and read them
+        rgba_path = random.choice(rgba_image_paths)
+        background_path = random.choice(background_image_paths)
+        print("\nPicked for augmentations:")
+        print("RGBA:", os.path.basename(rgba_path))
+        print("BACKGROUND:", os.path.basename(background_path))
+
+        rgba_image = cv2.imread(rgba_path, cv2.IMREAD_UNCHANGED)
+        if rgba_image is None:
+            print(f"Failed to open RGBA image {rgba_path}")
+            continue
+        background_image = cv2.imread(background_path)
+        if background_image is None:
+            print(f"Failed to open background image {background_path}")
+            continue
+
+        augmented_image = augmenter(rgba_image, background_image)
+        try:
+            cv2.imwrite(os.path.join(save_path, str(total_augmented) + ".jpg"), augmented_image)
+        except Exception as e:
+            print(f"Failed to save augmented image. Error: {e}")
+            continue
+
+        total_augmented += 1
+
+    return
+
+
+def main():
+    transparency_range = [0.2, 0.8]
+    # Parse args
+    args = parse_arguments()
+    if not os.path.exists(args.save_path):
+        os.mkdir(args.save_path)
+    assert args.total_images > 0, "Wrong argument total images. Cannot be negative"
+    assert 0 <= args.rotation_limit <= 180, "Wrong argument rotation limit. Expected [0, 180]"
+    assert 0.0 <= args.deformation_limit < 1, "Wrong argument deformation limit. Expected [0, 1)"
+    resize_range = [float(e) for e in args.resize_range]
+    assert 0.0 <= args.noise_thresh <= 1.0, "Wrong noise threshold. Expected (0, 100)"
+    assert 0.0 <= args.blur_thresh <= 1.0, "Wrong blur threshold. Expected (0, 100)"
+    assert 0.0 <= args.rotation_thresh <= 1.0, "Wrong rotation threshold. Expected (0, 100)"
+    assert 0.0 <= args.deform_thresh <= 1.0, "Wrong deformation threshold. Expected (0, 100)"
+
+    # Get paths to RGBA images to augment. Check they are actually RGBA
+    rgba_paths = get_paths_to_images(args.transparent, img_type="rgba")
+    if not rgba_paths:
+        print("No RGBA images found in the provided folder")
+        return
+    confirmed_rgba = check_alpha_channel_exists(rgba_paths)
+    if not confirmed_rgba:
+        print("No RGBA images found in the provided folder")
+        return
+
+    # Get paths to background images onto which rbga images will be mapped
+    background_paths = get_paths_to_images(args.background, img_type="background")
+    if not background_paths:
+        print("No background images found in the provided folder")
+        return
+
+    # Initialize augmenter alongside all available augmentations
+    deformation = Deformation(deformation_limit=args.deformation_limit)
+    rotation = Rotation(rotation_limit=args.rotation_limit)
+    size = Resize(resize_range)
+    augmenter = Augmenter(
+        augmentation=[deformation, rotation, size],
+        transparency_range=transparency_range,
+        noise_thresh=args.noise_thresh,
+        blur_thresh=args.blur_thresh,
+        rotation_thresh=args.rotation_thresh,
+        deformation_thresh=args.deform_thresh
+    )
+    # Augment images
+    augment_images(
+        rgba_image_paths=rgba_paths,
+        background_image_paths=background_paths,
+        augmenter=augmenter,
+        save_path=args.save_path,
+        total_number=args.total_images
+    )
+    print("Augmentation completed")
+
+
+if __name__ == "__main__":
+    main()

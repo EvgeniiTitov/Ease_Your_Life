@@ -57,8 +57,13 @@ def convert_hash(hash_) -> int:
 
 
 def visualise_similar_images(paths: Set[str], thumbnail_size: int = 400) -> None:
+    if len(paths) > 4:
+        thumbnail_size = 200
+
+    print("\nPATHS OF SIMILAR/IDENTICAL IMAGES:")
     duplicate_images = None
     for path in paths:
+        print(path)
         try:
             image = cv2.imread(path)
         except Exception as e:
@@ -124,6 +129,8 @@ def run_humming_algorithm(args) -> None:
     hashes = generate_hashes_for_images(paths_to_images, "humming")
 
     #TODO: Review how you store duplicates. How they are stored together! Wrong
+    #      You need to assemble similar images together, so you can delete and leave only 1
+    #      Using dict with hashes of similar imgs as keys might work
 
     for hash_, paths in hashes.items():
         if len(paths) > 1:
