@@ -22,11 +22,15 @@ def parse_arguments():
                         help="Max deformation value. 0.2 -> 20% max deformation applied to either height or width")
     parser.add_argument("--resize_range", nargs="+", default=[0.2, 0.6],
                         help="Min and max width of augmented image relatively to the background image's width")
-    parser.add_argument("--noise_thresh", type=float, default=0.75,
+    parser.add_argument("--noise_thresh", type=float, default=0.99,
                         help="Thresh for applying random noise on top of the augmented image")
-    parser.add_argument("--blur_thresh", type=float, default=0.85, help="Thesh for blurring the output augmented image")
-    parser.add_argument("--rotation_thresh", type=float, default=0.5, help="Thresh to rotate rgba image on random angle")
-    parser.add_argument("--deform_thresh", type=float, default=0.5, help="Thresh to deform (stretch/squash) rgba image")
+    parser.add_argument("--blur_thresh", type=float, default=0.99,
+                        help="Thesh for blurring the output augmented image")
+    parser.add_argument("--rotation_thresh", type=float, default=0.5,
+                        help="Thresh to rotate rgba image on random angle")
+    parser.add_argument("--deform_thresh", type=float, default=0.5,
+                        help="Thresh to deform (stretch/squash) rgba image")
+    parser.add_argument("--transparency_range", nargs="+", default=[0.5, 1.0], help="Transparency range in percent")
     arguments = parser.parse_args()
 
     return arguments
@@ -89,12 +93,15 @@ class Augmenter:
         return image * 255.0
 
     def overlay(self, background: np.ndarray, overlay: np.ndarray, x: int, y: int) -> np.ndarray:
-        "Courtesy of stackoverflow.com/questions/40895785/using-opencv-to-overlay-transparent-image-onto-another-image"
+        transparency_factor = float(random.randint(int(self.transp_min * 100), int(self.transp_max * 100)) / 100)
+        assert 0 <= transparency_factor <= 1, "Wrong transparency factor. Expected [0.0, 1.0]"
         background_width = background.shape[1]
         background_height = background.shape[0]
+        # Check if x, y coordinates are beyond the background image edges
         if x >= background_width or y >= background_height:
             return background
-
+        # If overlay image edge(s) go beyond, cut the array accordingly to keep only the overlay image area that
+        # happens to be within the background image area
         h, w = overlay.shape[0], overlay.shape[1]
         if x + w > background_width:
             w = background_width - x
@@ -102,7 +109,9 @@ class Augmenter:
         if y + h > background_height:
             h = background_height - y
             overlay = overlay[:h]
+
         if overlay.shape[2] < 4:
+            # Simulate the 4th alpha channel with values 255 - entirely transparent
             overlay = np.concatenate(
                 [
                     overlay,
@@ -110,8 +119,8 @@ class Augmenter:
                 ],
                 axis=2,
             )
-        overlay_image = overlay[..., :3]
-        mask = overlay[..., 3:] / 255.0
+        overlay_image = overlay[..., :3]  # rgb image
+        mask = (overlay[..., 3:] / 255.0) * transparency_factor  # alpha channel
         background[y:y + h, x:x + w] = (1.0 - mask) * background[y:y + h, x:x + w] + mask * overlay_image
 
         return background
@@ -197,7 +206,7 @@ def get_paths_to_images(folder: str, img_type: str) -> List[str]:
                                                 os.path.splitext(file)[-1].lower() in ALLOWED_EXTS]
 
 
-def check_alpha_channel_exists(paths: List[str]) -> List[str]:
+def confirm_alpha_channel_exists(paths: List[str]) -> List[str]:
     paths_to_confirmed_rgba_images = list()
     for path in paths:
         try:
@@ -220,6 +229,15 @@ def augment_images(
         save_path: str,
         total_number: int
 ) -> None:
+    """
+    Keeps running until total_number of augmented images has been generated
+    :param rgba_image_paths:
+    :param background_image_paths:
+    :param augmenter:
+    :param save_path:
+    :param total_number:
+    :return:
+    """
     total_augmented = 0
     while True:
         if total_augmented == total_number:
@@ -253,7 +271,6 @@ def augment_images(
 
 
 def main():
-    transparency_range = [0.2, 0.8]
     # Parse args
     args = parse_arguments()
     if not os.path.exists(args.save_path):
@@ -266,13 +283,15 @@ def main():
     assert 0.0 <= args.blur_thresh <= 1.0, "Wrong blur threshold. Expected (0, 100)"
     assert 0.0 <= args.rotation_thresh <= 1.0, "Wrong rotation threshold. Expected (0, 100)"
     assert 0.0 <= args.deform_thresh <= 1.0, "Wrong deformation threshold. Expected (0, 100)"
+    transparency_range = [float(e) for e in args.transparency_range]
+    assert all(0.0 <= e <= 1.0 for e in transparency_range), "Wrong value of transparency range. Expected [0, 1]"
 
     # Get paths to RGBA images to augment. Check they are actually RGBA
     rgba_paths = get_paths_to_images(args.transparent, img_type="rgba")
     if not rgba_paths:
         print("No RGBA images found in the provided folder")
         return
-    confirmed_rgba = check_alpha_channel_exists(rgba_paths)
+    confirmed_rgba = confirm_alpha_channel_exists(rgba_paths)
     if not confirmed_rgba:
         print("No RGBA images found in the provided folder")
         return
