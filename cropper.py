@@ -1,24 +1,31 @@
+import os
+
 from typing import List, Tuple
 import numpy as np
-import os
-import sys
 import cv2
 
 
-ALLOWED_EXTS = ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]
+ALLOWED_EXTS = [".jpg", ".jpeg", ".png"]
 
 
-def collect_paths(path_to_data: str, img_paths: List[str], txt_paths: List[str]) -> Tuple[list, list]:
+def collect_paths(
+        path_to_data: str,
+        img_paths: List[str],
+        txt_paths: List[str]
+) -> Tuple[list, list]:
     for item in os.listdir(path_to_data):
         path_to_item = os.path.join(path_to_data, item)
-
         if os.path.isfile(path_to_item):
-            if any(item.endswith(ext) for ext in ALLOWED_EXTS):
+            if os.path.splitext(item)[-1].lower() in ALLOWED_EXTS:
                 img_paths.append(path_to_item)
-            elif item.endswith("txt"):
+            elif item.endswith(".txt"):
                 txt_paths.append(path_to_item)
         elif os.path.isdir(path_to_item):
-            collect_paths(path_to_item, img_paths, txt_paths)
+            collect_paths(
+                path_to_item,
+                img_paths,
+                txt_paths
+            )
         else:
             continue
 
@@ -26,7 +33,7 @@ def collect_paths(path_to_data: str, img_paths: List[str], txt_paths: List[str])
 
 
 def get_txt_content(path_to_txt: str, class_to_search: int) -> List[list]:
-    assert os.path.isfile(path_to_txt), "Something went wrong"
+    assert os.path.isfile(path_to_txt)
     obj_coordinates = list()
     try:
         with open(path_to_txt, mode="r") as file:
@@ -34,7 +41,8 @@ def get_txt_content(path_to_txt: str, class_to_search: int) -> List[list]:
                 elements = line.split()
                 if elements[0] == str(class_to_search):
                     obj_coordinates.append(
-                        [float(elements[1]), float(elements[2]), float(elements[3]), float(elements[4])]
+                        [float(elements[1]), float(elements[2]),
+                         float(elements[3]), float(elements[4])]
                     )
     except Exception as e:
         print(f"Failed while reading txt: {path_to_txt}. Error: {e}")
@@ -43,9 +51,12 @@ def get_txt_content(path_to_txt: str, class_to_search: int) -> List[list]:
     return obj_coordinates
 
 
-def slice_np_array_using_coordinates(image: np.ndarray, coordinates: List[list]) -> List[np.ndarray]:
+def slice_np_array_using_coordinates(
+        image: np.ndarray,
+        coordinates: List[list]
+) -> List[np.ndarray]:
     sliced_out_imgs = list()
-    h, w = image.shape[0:2]
+    h, w = image.shape[:2]
     for coordinate in coordinates:
         centre_x = int(coordinate[0] * w)
         centre_y = int(coordinate[1] * h)
@@ -68,7 +79,11 @@ def slice_np_array_using_coordinates(image: np.ndarray, coordinates: List[list])
     return sliced_out_imgs
 
 
-def save_cropped_images(images: List[np.ndarray], save_path: str, image_name: str) -> None:
+def save_cropped_images(
+        images: List[np.ndarray],
+        save_path: str,
+        image_name: str
+) -> None:
     for i, image in enumerate(images):
         path_to_save = os.path.join(save_path, f"{image_name}_{i}.jpg")
         try:
@@ -79,24 +94,35 @@ def save_cropped_images(images: List[np.ndarray], save_path: str, image_name: st
 
     return
 
-def process_images_and_txts(path_to_images: List[str], path_to_txts: List[str], save_path: str, cls: int) -> None:
+
+def process_images_and_txts(
+        path_to_images: List[str],
+        path_to_txts: List[str],
+        save_path: str,
+        cls: int
+) -> None:
     for path_to_image, path_to_txt in zip(path_to_images, path_to_txts):
-        if os.path.splitext(os.path.basename(path_to_image))[0] != os.path.splitext(os.path.basename(path_to_txt))[0]:
+        if os.path.splitext(os.path.basename(path_to_image))[0] != \
+                            os.path.splitext(os.path.basename(path_to_txt))[0]:
             print("Names do not match. Skipped")
             continue
 
-        try:
-            image = cv2.imread(path_to_image)
-        except Exception as e:
-            print(f"Failed to open an image: {path_to_image}. Error: {e}")
-            continue
+        image = cv2.imread(path_to_image)
+        if image is None:
+            print("Failed to read image:", path_to_image)
 
         coordinates = get_txt_content(path_to_txt, cls)
         if not coordinates:
             continue
 
         cropped_images = slice_np_array_using_coordinates(image, coordinates)
-        save_cropped_images(cropped_images, save_path, image_name=os.path.splitext(os.path.basename(path_to_image))[0])
+        save_cropped_images(
+            cropped_images,
+            save_path,
+            image_name=os.path.splitext(os.path.basename(path_to_image))[0]
+        )
+
+    return
 
 
 def main():
@@ -109,9 +135,12 @@ def main():
     img_paths, txt_paths = collect_paths(path_to_data, img_paths, txt_paths)
 
     # Make sure items are sorted based on their name (number from 1 - N)
-    img_paths.sort(key=lambda path: os.path.splitext(os.path.basename(path))[0])
-    txt_paths.sort(key=lambda path: os.path.splitext(os.path.basename(path))[0])
-
+    img_paths.sort(
+        key=lambda path: os.path.splitext(os.path.basename(path))[0]
+    )
+    txt_paths.sort(
+        key=lambda path: os.path.splitext(os.path.basename(path))[0]
+    )
     process_images_and_txts(img_paths, txt_paths, save_path, class_to_crop_out)
 
 if __name__ == "__main__":

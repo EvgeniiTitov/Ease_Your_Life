@@ -78,7 +78,6 @@ def execute_request(headers: dict, params: dict, save_path: str, max_results: in
 
 def main():
     args = parse_arguments()
-
     query = args.query
     save_path = args.save_path
     if not os.path.exists(save_path):

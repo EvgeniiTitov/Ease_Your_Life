@@ -9,7 +9,7 @@ import sys
 def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("urls", nargs="+", help="Path to video(s) to download")
-    parser.add_argument("--save_path", default=r"C:\Users\Evgenii\Downloads\scraping",
+    parser.add_argument("--save_path", default=r"D:\Desktop\SIngleView\raw_data\paknsave\videos_youtube\stickman",
                         help="Path where results will be saved")
     return parser.parse_args()
 

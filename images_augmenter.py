@@ -76,8 +76,6 @@ class Augmenter:
                 continue
             image = transform(image, background_image_size)
 
-        # Pick transparency value
-
         # Combine the two images - allows the image go beyond the edges a little bit - free augmentation
         try:
             x = random.randint(0, background_image.shape[1] - int(image.shape[1] * .8))
@@ -294,11 +292,10 @@ def turn_to_rgba(image_paths: List[str]) -> List[str]:
         image = cv2.imread(image_path)
         if image is None:
             continue
-
+        # Split image into channels, create a new array representing the alpha channel and concat them together
         b, g, r = cv2.split(image)
         alpha = np.ones(b.shape, dtype=b.dtype) * 255
         image = cv2.merge((b, g, r, alpha))
-
         path, image_name = os.path.split(image_path)
         image_name = os.path.splitext(image_name)[0] + "_converted.png"
         save_path = os.path.join(path, image_name)

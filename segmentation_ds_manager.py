@@ -69,7 +69,7 @@ def slice_image_mask(
             crops = cut_in_two(image, mask)
             for i, crop in enumerate(crops):
                 image_, mask_ = crop
-                assert image_.shape[:2] == mask_.shape[:2]
+                assert image_.shape[:2] == mask_.shape[:2], "Sliced image and mask sizes do not match"
                 try:
                     cv2.imwrite(os.path.join(save_path, "cropped_images", f"{os.path.splitext(name)[0]}_{i}.png"), image_)
                     cv2.imwrite(os.path.join(save_path, "cropped_masks", f"{os.path.splitext(name)[0]}_{i}.png"), mask_)
@@ -98,7 +98,7 @@ def overlay_masks(names: List[str], folder_images: str, folder_masks: str) -> No
             print(f"ATTENTION: Image and mask named {name} sizes do not match. Skipped")
             continue
 
-        combined = cv2.addWeighted(image, 0.99, mask, 0.3, 0)
+        combined = cv2.addWeighted(image, 0.7, mask, 0.3, 0)
 
         # Not quite what I want. Check https://stackoverflow.com/questions/44535068/opencv-python-cover-a-colored-mask-over-a-image
         #combined = cv2.bitwise_and(image, cv2.bitwise_not(mask))
@@ -136,6 +136,7 @@ def main():
                                                         set([os.path.splitext(mask)[0] for mask in mask_names]), msg
         overlay_masks(image_names, args.folder_images, args.folder_masks)
         return
+
 
 if __name__ == "__main__":
     main()

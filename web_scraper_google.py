@@ -103,8 +103,8 @@ def search_and_download(search_term: str, driver_path: str, target_path='./image
 
 if __name__ == "__main__":
     search_and_download(
-        search_term="woolworths catalogue",
+        search_term="shapes",
         driver_path=r"C:\Users\Evgenii\Downloads\chromedriver.exe",
         target_path=r"C:\Users\Evgenii\Downloads\scraping",
-        number_images=25
+        number_images=100
     )
