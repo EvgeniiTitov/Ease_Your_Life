@@ -1,8 +1,9 @@
-import argparse
 import os
-import cv2
+import argparse
 import csv
 from typing import Tuple, List
+
+import cv2
 
 
 def read_args():

@@ -87,7 +87,8 @@ def get_images_names(path: str) -> list:
 def generate_paths_YOLO():
     import random
 
-    relative_path = r'data/obj/'
+    #relative_path = r'data/dasha_training/'
+    relative_path = '../dataset/images/train/'
     source = input("Enter the source of images: ")
     destination = input("Enter the destination TXT file: ")
 
@@ -103,7 +104,10 @@ def generate_paths_YOLO():
 
     with open(destination, 'w') as f:
         for image in images:
-            f.write(os.path.join(relative_path, image) + '\n')
+            if relative_path:
+                f.write(os.path.join(relative_path, image) + '\n')
+            else:
+                f.write(image + "\n")
 
     print("Done")
 
@@ -146,7 +150,7 @@ def rename_ImgTxt(
     return
 
 
-def relocate_img_txt(folders: list, save_path: str, start: int = 2350) -> None:
+def relocate_img_txt(folders: list, save_path: str, start: int = 3200) -> None:
     for folder in folders:
         # Collect all images and txts to relocate
         paths_to_images = list()
@@ -338,14 +342,14 @@ def collect_all_images(folder: str, images: list) -> tuple:
 
 
 def main():
-    generate_empty_txt(
-        folder_with_image=r"D:\Desktop\NEGATIVES_TO_MOVE",
-        save_path=r"D:\Desktop\NEGATIVES_TO_MOVE"
-    )
-    sys.exit()
-
-    # generate_paths_YOLO()
+    # generate_empty_txt(
+    #     folder_with_image=r"D:\negatives",
+    #     save_path=r"D:\negatives"
+    # )
     # sys.exit()
+
+    generate_paths_YOLO()
+    sys.exit()
 
     images_to_modify = list()
     if arguments.folder:

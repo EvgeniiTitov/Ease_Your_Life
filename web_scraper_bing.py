@@ -36,7 +36,9 @@ def download_batch_of_images(results: dict, save_path: str, total: int) -> int:
             result = requests.get(v["contentUrl"], timeout=30)
 
             ext = v["contentUrl"][v["contentUrl"].rfind("."):]
-            path = os.path.sep.join([save_path, "{}{}".format(str(total).zfill(8), ext)])
+            path = os.path.sep.join(
+                [save_path, "{}{}".format(str(total).zfill(8), ext)]
+            )
             file = open(path, "wb")
             file.write(result.content)  # .content gives access to binary data
             file.close()
@@ -53,7 +55,13 @@ def download_batch_of_images(results: dict, save_path: str, total: int) -> int:
     return total
 
 
-def execute_request(headers: dict, params: dict, save_path: str, max_results: int, group_size: int) -> None:
+def execute_request(
+        headers: dict,
+        params: dict,
+        save_path: str,
+        max_results: int,
+        group_size: int
+) -> None:
     search = requests.get(URL_ENDPOINT, headers=headers, params=params)
     search.raise_for_status()
     results = search.json()
@@ -64,14 +72,19 @@ def execute_request(headers: dict, params: dict, save_path: str, max_results: in
     # Traverse over estimated number of results with the GROUP SIZE step
     total_downloaded = 0
     for offset in range(0, esimated_nb_results, group_size):
-        # using the current offset update the search parameters, make a request to fetch the results
-        print(f"\nRequesting group {offset}-{offset + group_size} of {esimated_nb_results}...")
+        # using the current offset update the search parameters,
+        # make a request to fetch the results
+        print(f"\nRequesting group {offset}-{offset + group_size} "
+              f"of {esimated_nb_results}...")
         params["offset"] = offset
         search = requests.get(URL_ENDPOINT, headers=headers, params=params)
         search.raise_for_status()
         results = search.json()
-        print(f"\nSaving images for group {offset}-{offset + group_size} of {esimated_nb_results}...")
-        total_downloaded = download_batch_of_images(results, save_path, total_downloaded)
+        print(f"\nSaving images for group {offset}-{offset + group_size} "
+              f"of {esimated_nb_results}...")
+        total_downloaded = download_batch_of_images(
+            results, save_path, total_downloaded
+        )
 
     return
 
@@ -89,7 +102,9 @@ def main():
     print("\nSEARCHING IMAGES FOR QUERY:", query)
     headers = {"Ocp-Apim-Subscription-Key": args.key}
     params = {"q": query, "offset": 0, "count": args.group_size}
-    execute_request(headers, params, save_path, args.max_results, args.group_size)
+    execute_request(
+        headers, params, save_path, args.max_results, args.group_size
+    )
 
 
 if __name__ == "__main__":

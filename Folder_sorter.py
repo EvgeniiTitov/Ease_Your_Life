@@ -1,21 +1,19 @@
-# EXAMPLE:
-# python C:\Users\Evgenii\Desktop\Python_Programming\Python_Projects\Scripts\folder_sorter.py
-# --folder=D:\Desktop\testing
-# --classes concrete metal
-# --save_path D:\Desktop\testing\Concrete D:\Desktop\testing\Metal
-
-# Make sure you provide classes and save paths in order!
-import cv2
 import sys
 import os
 import argparse
 import shutil
 
-parser = argparse.ArgumentParser(description = "Folder parser")
+import cv2
+
+
+parser = argparse.ArgumentParser(description = "Folder sorter")
 parser.add_argument('--folder', help="Source folder with images to split")
-parser.add_argument('--classes', nargs='+', help="Classes we want to split images in")
-parser.add_argument('--save_path', nargs='+', help="Path where to save an image for each class")
-parser.add_argument('--delete', type=int, default=0, help="Delete an image after its been processed")
+parser.add_argument('--classes', nargs='+',
+                    help="Classes we want to split images in")
+parser.add_argument('--save_path', nargs='+',
+                    help="Path where to save an image for each class")
+parser.add_argument('--delete', type=int, default=0,
+                    help="Delete an image after its been processed")
 arguments = parser.parse_args()
 
 
@@ -77,18 +75,15 @@ def relocate_image(
 
 
 def main():
-
-    # Process the source folder provided
     if not arguments.folder or not os.path.isdir(arguments.folder):
-        print("ERROR: Wrong input. Giving up")
-        sys.exit()
+        print("No source of data provided")
+        return
 
     source_folder = arguments.folder
-
     # Process classes that a user wants to have images split into
     if not arguments.classes:
         print("No classes have been provided. Giving up")
-        sys.exit()
+        return
 
     classes = list()
     for index, element in enumerate(arguments.classes, start=1):
@@ -97,18 +92,19 @@ def main():
 
     # Process paths to which a user wants to save images depending on its class
     if not arguments.save_path:
-        print("No paths where to save images have been provided. Giving up")
-        sys.exit()
+        print("No save paths provided")
+        return
 
     save_paths = list()
     for path in arguments.save_path:
-
         if not os.path.exists(path):
-            os.mkdir(path)
+            try:
+                os.mkdir(path)
+            except Exception as e:
+                print(f"Failed to create folder: {path}. Error: {e}")
         save_paths.append(path)
 
     assert len(classes) == len(save_paths), "ERROR: N of paths to save != N of classes"
-
     # Zip together (button to press, class) and a path where to save it
     # {(1, 'pole'): 'D:\\Desktop\\Test_Dir1', (2, 'isolator'): 'D:\\Desktop\\Test_Dir2'}
     class_save_path = dict(zip(classes, save_paths))
