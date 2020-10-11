@@ -13,7 +13,8 @@ AVAILABLE_ALGORITHMS = ["dhash", "humming"]
 
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("folder", help="Path to a folder with images")
+    parser.add_argument("-f", "--folder", nargs="+",
+                        help="Path to a folder with images")
     parser.add_argument("--remove", default=0, type=int,
                         help="Remove duplicates or not. Expected 0 or 1")
     parser.add_argument("--algorithm", default="dhash", type=str,
@@ -99,7 +100,9 @@ def generate_hashes_for_images(
         try:
             image = cv2.imread(path_to_image)
         except Exception as e:
-            print(f"Failed to open: {path_to_image}. Error: {e}. Image skipped")
+            print(
+                f"Failed to open: {path_to_image}. Error: {e}. Image skipped"
+            )
             continue
 
         if algorithm == "dhash":
@@ -116,9 +119,7 @@ def generate_hashes_for_images(
     return hashes
 
 
-def run_dhash_algorithm(args) -> None:
-    paths_to_images = list()
-    paths_to_images = collect_image_paths(args.folder, paths_to_images)
+def run_dhash_algorithm(args, paths_to_images: List[str]) -> None:
     hashes = generate_hashes_for_images(paths_to_images, "dhash")
     # Handle duplicates
     for hash_, paths in hashes.items():
@@ -133,9 +134,7 @@ def run_dhash_algorithm(args) -> None:
     return
 
 
-def run_humming_algorithm(args) -> None:
-    paths_to_images = list()
-    paths_to_images = collect_image_paths(args.folder, paths_to_images)
+def run_humming_algorithm(args, paths_to_images: List[str]) -> None:
     paths_of_similar_images = set()
     hashes = generate_hashes_for_images(paths_to_images, "humming")
 
@@ -147,7 +146,8 @@ def run_humming_algorithm(args) -> None:
         if len(paths) > 1:
             paths_of_similar_images.update(set(paths))
 
-    #Check for similar images: humming distance between hashes within the threshold
+    #Check for similar images: humming distance between
+    # hashes within the threshold
     for k1, k2 in itertools.combinations(hashes, 2):
         if calculate_hamming_distance(k1, k2) <= args.humming_thresh:
             paths_of_similar_images.update(set(hashes[k1]))
@@ -167,16 +167,26 @@ def run_humming_algorithm(args) -> None:
 
 def main() -> None:
     args = read_args()
-    assert os.path.isdir(args.folder), "Wrong input. Folder expected."
-    assert args.humming_thresh >= 0, "Wrong value of hummning distance provided"
+    assert args.humming_thresh >= 0, "Wrong value of hummning distance"
     assert args.algorithm.lower().strip() in AVAILABLE_ALGORITHMS, \
                         "Wrong algorithm requested. Available: dhash, humming"
-    if args.algorithm.lower().strip() == "dhash":
-        run_dhash_algorithm(args)
-    elif args.algorithm.lower().strip() == "humming":
-        run_humming_algorithm(args)
 
+    image_paths = []
+    for folder in args.folder:
+        if not os.path.isdir(folder):
+            print("Not a folder provided:", folder)
+            continue
+        paths = collect_image_paths(folder, [])
+        print(f"Found {len(paths)} images in the folder {folder}")
+        image_paths.extend(paths)
+    print("Total images to check:", len(image_paths))
+
+    if args.algorithm.lower().strip() == "dhash":
+        run_dhash_algorithm(args, image_paths)
+    elif args.algorithm.lower().strip() == "humming":
+        run_humming_algorithm(args, image_paths)
     return
+
 
 if __name__ == "__main__":
     main()
