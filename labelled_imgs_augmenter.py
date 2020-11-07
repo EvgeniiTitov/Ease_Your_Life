@@ -3,6 +3,7 @@ import argparse
 import cProfile
 import pstats
 import io
+import multiprocessing
 
 import cv2
 from typing import Tuple, Set, Union, List
@@ -11,6 +12,7 @@ from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 import imgaug
 
 
+CORE_SATURATION_COEF = 1.2
 AUGMENT_PIPELINE = imgaug.augmenters.Sequential([
     imgaug.augmenters.Fliplr(p=1.0),
     imgaug.augmenters.Affine(
@@ -50,7 +52,7 @@ def get_unique_names(dirpath: str) -> Set[str]:
     return {str(os.path.splitext(file)[0]) for file in os.listdir(dirpath)}
 
 
-def get_img_txt_pair(filenames: Set[str], folder: str) -> Tuple[str, str]:
+def get_img_txt_pair(filenames: List[str], folder: str) -> Tuple[str, str]:
     for filename in filenames:
         image_path = os.path.join(folder, filename + ".jpg")
         txt_path = os.path.join(folder, filename + ".txt")
@@ -78,7 +80,7 @@ def read_image(image_path: str) -> Tuple[bool, Union[None, np.ndarray]]:
     try:
         image = cv2.imread(image_path)
     except Exception as e:
-        print(f"Failed to open image: {image_path}. Error: {e}")
+        print(f"[ERROR]: Failed to open image: {image_path}. Error msg: {e}")
         return False, None
     return (True, image) if image is not None else (False, image)
 
@@ -188,51 +190,52 @@ def augment_image(
     return aug_images, aug_coords
 
 
-#@profile
-def main() -> None:
-    args = read_args()
-    if not os.path.exists(args["save_path"]):
-        os.mkdir(args["save_path"])
-        print("Dir to store results created:", args["save_path"])
-    #cv2.namedWindow("", cv2.WINDOW_NORMAL)
+def split_among_workers(worker_count: int, filenames: List[str]) -> List[list]:
+    if len(filenames) < worker_count:
+        raise Exception("Do you even need multiprocessing?!")
+    per_worker = len(filenames) // worker_count
+    start = 0
+    for i in range(1, worker_count + 1):
+        if i == worker_count:
+            yield filenames[start:]
+        else:
+            yield filenames[start: per_worker * i]
+            start += per_worker
 
-    filenames = get_unique_names(args["folder"])
+
+#@profile
+def process_batch(args: dict) -> None:
+    filenames = args["filenames"]
+    img_dir = args["img_dir"]
+    save_path = args["save_path"]
+    n = args["n"]
+    pid = os.getpid()
+    print(f"Process {pid} spawned. Got {len(filenames)} to augment")
+    exceptions = 0
     nb_files = len(filenames)
     for i, (img_path, txt_path) in enumerate(
-            get_img_txt_pair(filenames, args["folder"])
+            get_img_txt_pair(filenames, img_dir)
     ):
-        print(f"{i}/{nb_files}. "
+        print(f"Process: {pid}. {i}/{nb_files}. "
               f"Augmenting image: {os.path.basename(img_path)}")
         success_img, image = read_image(img_path)
         suceess_txt, coords = read_txt_content(txt_path)
         if not all((success_img, suceess_txt)):
             continue
         coords_human = convert_darknet_to_human(coords, image)
-        # draw_boxes(image, coords_human)
-        # cv2.imshow("", image)
-        # cv2.waitKey(0)
-        # continue
         aug_images, aug_boxes = augment_image(
-            image, coords_human, n_of_new_imgs=args["n"]
+            image, coords_human, n_of_new_imgs=n
         )
         former_name = os.path.splitext(os.path.basename(img_path))[0]
-
-        # for image_, boxes in zip(aug_images, aug_boxes):
-        #     draw_boxes(image_, boxes)
-        #     cv2.imshow("", image_)
-        #     cv2.waitKey(0)
-
         if len(aug_images):
             for j, (image_, boxes) in enumerate(zip(aug_images, aug_boxes)):
                 new_name = f"{former_name}_{j}"
                 boxes_darknet = convert_human_to_darknet(boxes, image_)
-                txt_save_path = os.path.join(
-                    args["save_path"], new_name + ".txt"
-                )
+                txt_save_path = os.path.join(save_path, new_name + ".txt")
                 try:
                     # Save image
                     cv2.imwrite(
-                        os.path.join(args["save_path"], new_name + ".jpg"),
+                        os.path.join(save_path, new_name + ".jpg"),
                         image_
                     )
                     # Save txt
@@ -241,8 +244,41 @@ def main() -> None:
                             file.write(" ".join([str(e) for e in box_darknet]))
                             file.write("\n")
                 except Exception as e:
-                    print(f"Failed to save augmented pair img-txt. Error: {e}")
+                    print(f"[ERROR]: Process: {os.getpid()}. "
+                          f"Failed to save augmented pair img-txt. Error: {e}")
+                    exceptions += 1
                     continue
+    print(f"Process: {pid} finished with {exceptions} exceptions")
+
+
+def main():
+    args = read_args()
+    if not os.path.exists(args["save_path"]):
+        os.mkdir(args["save_path"])
+        print("Dir to store results created:", args["save_path"])
+
+    assert os.path.exists(args["folder"])
+    assert args["n"] > 0
+    filenames = get_unique_names(args["folder"])
+    cpu_cores_available = multiprocessing.cpu_count()
+    worker_count = int(cpu_cores_available * CORE_SATURATION_COEF)
+    job_splitter = split_among_workers(worker_count, list(filenames))
+    arguments = {
+        "filenames": None,
+        "img_dir": args["folder"],
+        "save_path": args["save_path"],
+        "n": args["n"]
+    }
+    jobs = []
+    for i in range(worker_count):
+        job = arguments.copy()
+        job["filenames"] = next(job_splitter)
+        jobs.append(job)
+
+    print(f"Spawing {worker_count} workers ...")
+    with multiprocessing.Pool(worker_count) as p:
+        p.map(process_batch, tuple(jobs))
+    print("Complete.")
 
 
 if __name__ == "__main__":
