@@ -13,8 +13,11 @@ import imgaug
 
 AUGMENT_PIPELINE = imgaug.augmenters.Sequential([
     imgaug.augmenters.Fliplr(p=1.0),
-    imgaug.augmenters.Rotate(rotate=(-90, 90))
-])
+    imgaug.augmenters.Affine(
+        scale=(0.7, 1.3), rotate=(-90, 90), translate_percent={"x": 0.1}
+    ),
+    imgaug.augmenters.color.ChangeColorTemperature(kelvin=(3500, 12000))
+], random_order=True)
 
 
 def profile(fnc):
@@ -191,11 +194,15 @@ def main() -> None:
     if not os.path.exists(args["save_path"]):
         os.mkdir(args["save_path"])
         print("Dir to store results created:", args["save_path"])
-    cv2.namedWindow("", cv2.WINDOW_NORMAL)
+    #cv2.namedWindow("", cv2.WINDOW_NORMAL)
 
     filenames = get_unique_names(args["folder"])
-    for img_path, txt_path in get_img_txt_pair(filenames, args["folder"]):
-        print("Augmenting image:", os.path.basename(img_path))
+    nb_files = len(filenames)
+    for i, (img_path, txt_path) in enumerate(
+            get_img_txt_pair(filenames, args["folder"])
+    ):
+        print(f"{i}/{nb_files}. "
+              f"Augmenting image: {os.path.basename(img_path)}")
         success_img, image = read_image(img_path)
         suceess_txt, coords = read_txt_content(txt_path)
         if not all((success_img, suceess_txt)):
@@ -216,10 +223,9 @@ def main() -> None:
         #     cv2.waitKey(0)
 
         if len(aug_images):
-            for i, (image_, boxes) in enumerate(zip(aug_images, aug_boxes)):
-                new_name = f"{former_name}_{i}"
+            for j, (image_, boxes) in enumerate(zip(aug_images, aug_boxes)):
+                new_name = f"{former_name}_{j}"
                 boxes_darknet = convert_human_to_darknet(boxes, image_)
-                print(f"Name: {new_name}. Darknet coords: {boxes_darknet}")
                 txt_save_path = os.path.join(
                     args["save_path"], new_name + ".txt"
                 )
@@ -233,6 +239,7 @@ def main() -> None:
                     with open(txt_save_path, "w") as file:
                         for box_darknet in boxes_darknet:
                             file.write(" ".join([str(e) for e in box_darknet]))
+                            file.write("\n")
                 except Exception as e:
                     print(f"Failed to save augmented pair img-txt. Error: {e}")
                     continue
