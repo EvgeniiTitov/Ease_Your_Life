@@ -38,7 +38,7 @@ class DatasetManager:
             modifications,
             save_path
     ) -> None:
-        for index, path_to_image in enumerate(images, start=1):
+        for index, path_to_image in enumerate(images, start=8093):
             image_name = os.path.basename(path_to_image)
             image = cv2.imread(path_to_image)
             if image is None:
