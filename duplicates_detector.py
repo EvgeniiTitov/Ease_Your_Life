@@ -127,9 +127,11 @@ def run_dhash_algorithm(args) -> None:
         if not args.remove:
             visualise_similar_images(paths)
         else:
+            print()
+            print(f"Detected {len(paths)} duplicates of {paths[0]}")
             for path in paths[1:]:
+                print("Removing duplicates of:", os.path.basename(paths[0]))
                 os.remove(path)
-
     return
 
 

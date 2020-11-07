@@ -20,16 +20,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c9dc4d03-22a9-47bb-9156-a33ece9d3ac1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Scripts.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Scripts.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Folder_sorter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Folder_sorter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/YOLO_ds_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/YOLO_ds_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/duplicates_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/duplicates_detector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tv_ads_cropper.py" beforeDir="false" afterPath="$PROJECT_DIR$/tv_ads_cropper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web_scraper_bing.py" beforeDir="false" afterPath="$PROJECT_DIR$/web_scraper_bing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tv_ads_cropper_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/tv_ads_cropper_v2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +55,8 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="ignore_missing_gitignore" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../logo_detector" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunManager" selected="Python.video_cropper">
@@ -215,11 +210,11 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl" timestamp="1600260136424">
+    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl" timestamp="1604350920792">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040/-1080.-724.1080.2520@0.0.1920.1040" timestamp="1599698207799" />
-    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1600260136424" />
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040/-1080.-724.1080.2520@0.0.1920.1040" timestamp="1600909131412" />
+    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1604350920792" />
     <state x="23" y="163" key="SettingsEditor" timestamp="1599452517375">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

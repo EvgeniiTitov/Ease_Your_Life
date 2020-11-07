@@ -87,8 +87,8 @@ def get_images_names(path: str) -> list:
 def generate_paths_YOLO():
     import random
 
-    #relative_path = r'data/dasha_training/'
-    relative_path = '../dataset/images/train/'
+    relative_path = r'data/train/'
+    #relative_path = '../dataset/images/valid/'
     source = input("Enter the source of images: ")
     destination = input("Enter the destination TXT file: ")
 
@@ -343,8 +343,8 @@ def collect_all_images(folder: str, images: list) -> tuple:
 
 def main():
     # generate_empty_txt(
-    #     folder_with_image=r"D:\negatives",
-    #     save_path=r"D:\negatives"
+    #     folder_with_image=r"D:\FutureLab\negatives",
+    #     save_path=r"D:\FutureLab\negatives"
     # )
     # sys.exit()
 

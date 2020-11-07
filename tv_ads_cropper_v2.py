@@ -4,27 +4,16 @@ import cv2
 
 
 def main():
-    SAVE_PATH = r""
+    SAVE_PATH = r"D:\SingleView\SpotIQ\tests\CHANNELS\cropped_ads"
     ad_times = [
-        (5 * 60 + 54, 6 * 60 + 7),
-        (7 * 60 + 8, 7 * 60 + 22),
-        (7 * 60 + 23, 7 * 60 + 37),
-        (7 * 60 + 53, 8 * 60 + 7),
-        (14 * 60 + 49, 14 * 60 + 59),
-        (15 * 60 + 1, 15 * 60 + 15),
-        (15 * 60 + 16, 15 * 60 + 30),
-        (16 * 60 + 30, 16 * 60 + 45),
-        (16 * 60 + 46, 17 * 60 + 0),
-        (17 * 60 + 1, 17 * 60 + 15),
-        (23 * 60 + 51, 24 * 60 + 6),
-        (24 * 60 + 21, 24 * 60 + 36),
-        (24 * 60 + 37, 24 * 60 + 51),
-        (25 * 60 + 6, 25 * 60 + 21),
-        (25 * 60 + 52, 26 * 60 + 21),
-        #(0 * 60 +, 0 * 60 +),
-
+        (64*60 + 40, 65*60 + 10),
+        # (44*60 + 40, 45*60 + 27),
+        # (14*60 + 46, 15*60 + 15),
+        # (16 * 60 + 40, 16 * 60 + 52),
+        # (52 * 60 + 48, 53 * 60 + 0),
+        # (65 * 60 + 59, 66 * 60 + 15)
     ]
-    path_to_video = r"D:\SingleView\SpotIQ\tests\6.flv"
+    path_to_video = r"D:\SingleView\SpotIQ\tests\nz_tvnz1_2020_07_01_nz_tvnz1-1593641277_nz_tvnz1-1593641277.flv"
     cap = cv2.VideoCapture(path_to_video)
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
