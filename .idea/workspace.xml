@@ -19,11 +19,30 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9dc4d03-22a9-47bb-9156-a33ece9d3ac1" name="Default Changelist" comment="">
+    <list default="true" id="1a1ce3b2-98f3-4513-8ea2-9a01fa2fed85" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scripts/tv_ads_cropper_manual.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Scripts.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Scripts.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/YOLO_ds_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/YOLO_ds_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/duplicates_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/duplicates_detector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tv_ads_cropper_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/tv_ads_cropper_v2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/YOLO_ds_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/YOLO_ds_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cropper.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/object_slicer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dataset_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dataset_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ds_balance_checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/ds_balance_checker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/duplicates_detector.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/duplicates_detector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/folder_sorter.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/folder_sorter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images_augmenter.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/images_augmenter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_multiproc_downsampler.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/img_downsampler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_multiproc_renamer.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/img_renamer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/labelled_imgs_augmenter.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/labelled_imgs_augmenter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/labels_visualiser.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/labels_visualiser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/segmentation_ds_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/segmentation_ds_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tv_ads_cropper.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/tv_ads_cropper_csv.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tv_ads_cropper_v2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_cropper.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/video_cropper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/video_format_converter.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/video_format_converter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_scraper_bing.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/web_scraper_bing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web_scraper_google.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/web_scraper_google.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/youtube_video_downloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/youtube_video_downloader.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,12 +55,6 @@
         <option value="Python Script" />
       </list>
     </option>
-  </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>print</find>
-      <find>shape</find>
-    </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,8 +69,13 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="ignore_missing_gitignore" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../logo_detector" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Evgenii\Scripts\scripts" />
+    </key>
   </component>
   <component name="RunManager" selected="Python.video_cropper">
     <configuration name="YOLO_ds_manager" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -72,7 +90,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/YOLO_ds_manager.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\Evgenii\Scripts\scripts\YOLO_ds_manager.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -93,7 +111,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/img_multiproc_downsampler.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\Evgenii\Scripts\scripts\img_downsampler.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -135,7 +153,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/video_cropper.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\Evgenii\Scripts\scripts\video_cropper.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -156,7 +174,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/web_scraper_google.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\Evgenii\Scripts\scripts\web_scraper_google.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -180,7 +198,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="c9dc4d03-22a9-47bb-9156-a33ece9d3ac1" name="Default Changelist" comment="" />
+      <changelist id="1a1ce3b2-98f3-4513-8ea2-9a01fa2fed85" name="Default Changelist" comment="" />
       <created>1571241580928</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -210,14 +228,26 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl" timestamp="1604350920792">
+    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl" timestamp="1605402135070">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040/-1080.-724.1080.2520@0.0.1920.1040" timestamp="1600909131412" />
-    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1604350920792" />
+    <state x="740" y="90" width="440" height="675" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1605402135070" />
     <state x="23" y="163" key="SettingsEditor" timestamp="1599452517375">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="23" y="163" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1599452517375" />
+    <state x="769" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1605940572303">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="769" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1605940572303" />
+    <state x="446" y="308" width="713" height="424" key="git4idea.merge.GitMergeDialog" timestamp="1604710708045">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="446" y="308" width="713" height="424" key="git4idea.merge.GitMergeDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1604710708045" />
+    <state x="143" y="230" width="672" height="678" key="search.everywhere.popup" timestamp="1605936758592">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="143" y="230" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1605936758592" />
   </component>
 </project>

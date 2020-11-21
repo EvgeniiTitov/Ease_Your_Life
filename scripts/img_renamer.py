@@ -1,24 +1,20 @@
 import multiprocessing
-from img_multiproc_downsampler import DownSamples
 from typing import List
-import cv2
 import os
 import time
 import shutil
-import sys
+
+from .img_downsampler import DownSamples
 
 
 class Renamer:
     counter = 8093  # new name starts from: counter + '.jpg'
 
     @staticmethod
-    def split_paths_among_cores_and_generate_new_names(paths_to_images: list, nb_of_cpu_cores: int) -> List[List[tuple]]:
-        """
-
-        :param paths_to_images:
-        :param nb_of_cpu_cores:
-        :return:
-        """
+    def split_paths_among_cores_and_generate_new_names(
+            paths_to_images: list,
+            nb_of_cpu_cores: int
+    ) -> List[List[tuple]]:
         images_per_split = len(paths_to_images) // nb_of_cpu_cores
         splits = list()
         split = list()
@@ -59,20 +55,20 @@ def main():
     save_path = r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
     paths_to_images = list()
     nb_of_cores = multiprocessing.cpu_count()
-
     # Collect all paths to images to process
     DownSamples.collect_image_paths(path_to_folder, paths_to_images)
 
     # Split images equally between cores
-    splits = Renamer.split_paths_among_cores_and_generate_new_names(paths_to_images, nb_of_cores)
+    splits = Renamer.split_paths_among_cores_and_generate_new_names(
+        paths_to_images, nb_of_cores
+    )
     assert len(splits) == nb_of_cores, "Nb of cores != nb of splits"
-
     processes = list()
     s = time.time()
     for i in range(nb_of_cores):
         process = multiprocessing.Process(
             target=Renamer.rename_images,
-            args=[splits[i], save_path]
+            args=(splits[i], save_path)
         )
         process.start()
         processes.append(process)
@@ -81,7 +77,8 @@ def main():
     for process in processes:
         process.join()
 
-    print(f"All processes successfully joined. Finished in: {round(time.time() - s)} seconds")
+    print(f"All processes successfully joined. "
+          f"Finished in: {round(time.time() - s)} seconds")
     print("All images have been renamed and saved to:", save_path)
 
 

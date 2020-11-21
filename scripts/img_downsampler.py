@@ -1,21 +1,19 @@
 import multiprocessing
 from typing import List
-import cv2
 import os
 import time
+
+import cv2
 
 
 class DownSamples:
     allowed_ext = [".jpg", ".jpeg", ".png"]
 
     @staticmethod
-    def split_paths_among_cores(paths_to_images: list, nb_of_cpu_cores: int) -> List[list]:
-        """
-
-        :param paths_to_images:
-        :param nb_of_cpu_cores:
-        :return:
-        """
+    def split_paths_among_cores(
+            paths_to_images: list,
+            nb_of_cpu_cores: int
+    ) -> List[list]:
         images_per_split = len(paths_to_images) // nb_of_cpu_cores
         splits = list()
         split = list()
@@ -35,12 +33,8 @@ class DownSamples:
 
     @staticmethod
     def collect_image_paths(folder: str, paths: list) -> list:
-        """
-
-        :param folder:
-        :return:
-        """
-        # NOTE - we're sending a pointer to the list to the recursive calls -> all can update it
+        # NOTE - we're sending a pointer to the list to the
+        # recursive calls -> all can update it
         for item in os.listdir(folder):
             path_to_item = os.path.join(folder, item)
             if os.path.isdir(path_to_item):
@@ -52,10 +46,6 @@ class DownSamples:
 
     @staticmethod
     def downsample_images(path_to_images, save_path, height = 1080):
-        """
-        :param images:
-        :return:
-        """
         for path_to_image in path_to_images:
             try:
                 # open image
@@ -90,14 +80,12 @@ def main():
     splits = DownSamples.split_paths_among_cores(paths_to_images, nb_of_cores)
     assert len(splits) == nb_of_cores, "Nb of cores != nb of splits"
 
-    # Run your processes
-
     processes = list()
     s = time.time()
     for i in range(nb_of_cores):
         process = multiprocessing.Process(
             target=DownSamples.downsample_images,
-            args=[splits[i], save_path, NEW_HEIGHT]
+            args=(splits[i], save_path, NEW_HEIGHT)
         )
         process.start()
         processes.append(process)
@@ -106,7 +94,8 @@ def main():
     for process in processes:
         process.join()
 
-    print(f"All processes successfully joined. Finished in: {round(time.time() - s)} seconds")
+    print(f"All processes successfully joined. "
+          f"Finished in: {round(time.time() - s)} seconds")
     print("All images have been downsampled and saved to:", save_path)
 
 

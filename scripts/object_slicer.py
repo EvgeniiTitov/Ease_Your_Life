@@ -143,5 +143,6 @@ def main():
     )
     process_images_and_txts(img_paths, txt_paths, save_path, class_to_crop_out)
 
+
 if __name__ == "__main__":
     main()
