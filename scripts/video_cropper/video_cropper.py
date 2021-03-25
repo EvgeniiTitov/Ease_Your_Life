@@ -10,6 +10,12 @@ SKIP_FRAMES = 1
 SATURATION_COEF = 1.5
 
 
+'''
+.read() is blocking - is must be calling the C API.
+'''
+
+
+
 def read_args() -> dict:
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--folder',
