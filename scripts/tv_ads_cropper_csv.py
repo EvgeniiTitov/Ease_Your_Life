@@ -1,7 +1,8 @@
-import os
 import argparse
 import csv
-from typing import Tuple, List
+import os
+from typing import List
+from typing import Tuple
 
 import cv2
 
@@ -10,8 +11,10 @@ def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("folder", help="Path to a folder with .flv videos to process")
     parser.add_argument("save_path", help="Path where results will be saved")
-    parser.add_argument("csv",
-                        help="Path to CSV file containing information about video sections to crop out")
+    parser.add_argument(
+        "csv",
+        help="Path to CSV file containing information about video sections to crop out",
+    )
     return parser.parse_args()
 
 
@@ -37,19 +40,17 @@ def get_ad_times(csv: List[list], video_name: str) -> list:
     for entry in csv:
         company_name, video_n, start, finish = entry
         company_name = "NEW_WORLD" if company_name == "NEW WORLD" else company_name
-        video_n = video_n.split('.')[0]
+        video_n = video_n.split(".")[0]
         if video_name == video_n:
-            assert int(start) < int(finish), "Something's wrong with the ad timings: start > finish"
+            assert int(start) < int(
+                finish
+            ), "Something's wrong with the ad timings: start > finish"
             ad_times.append([company_name, video_n, int(start), int(finish)])
 
     return ad_times
 
 
-def process_video(
-        path_to_video: str,
-        ad_times: List[list],
-        save_path:str
-) -> bool:
+def process_video(path_to_video: str, ad_times: List[list], save_path: str) -> bool:
     """
 
     :param path_to_video:
@@ -95,11 +96,18 @@ def process_video(
             # If found ad's start
             if seconds_counter == ad_times[i][2] and video_writer == None:
                 ad_name = ad_times[i][0]
-                save_name = os.path.join(save_path, f"{os.path.basename(path_to_video)[:-4]}_{ad_name.upper()}_{str(i)}.avi")
+                save_name = os.path.join(
+                    save_path,
+                    f"{os.path.basename(path_to_video)[:-4]}_{ad_name.upper()}_{str(i)}.avi",
+                )
                 try:
-                    video_writer = cv2.VideoWriter(save_name, fourcc, fps, (frame_width, frame_height), True)
+                    video_writer = cv2.VideoWriter(
+                        save_name, fourcc, fps, (frame_width, frame_height), True
+                    )
                 except Exception as e:
-                    print(f"Failed while creating a video writer for ad: {ad_name}. Error: {e}")
+                    print(
+                        f"Failed while creating a video writer for ad: {ad_name}. Error: {e}"
+                    )
                     raise e
             # If found ad's finish
             elif seconds_counter == ad_times[i][3] and video_writer:
@@ -107,7 +115,7 @@ def process_video(
 
         if video_writer:
             cv2.imshow("", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
             video_writer.write(frame)
 
@@ -144,7 +152,7 @@ def main() -> None:
         success = process_video(
             path_to_video=os.path.join(args.folder, file),
             ad_times=ad_times,
-            save_path=args.save_path
+            save_path=args.save_path,
         )
         if not success:
             print("Failed while processing", file)

@@ -1,13 +1,13 @@
-import multiprocessing
-import time
-import random
-from functools import partial
-from datetime import datetime
-import typing as t
 import math
+import multiprocessing
+import random
+import time
+import typing as t
+from datetime import datetime
+from functools import partial
 
-import psutil
 import pandas as pd
+import psutil
 
 
 def i_might_fail_lol(i: int, df: pd.DataFrame) -> int:
@@ -23,7 +23,7 @@ def main() -> None:
         "C:/Users/Evgenii/Downloads/sample.csv",
         header=None,
         delimiter="|",
-        dtype="object"
+        dtype="object",
     )
     print("Df shape:", df.shape)
 
@@ -71,8 +71,8 @@ def main() -> None:
                     except multiprocessing.TimeoutError:
                         print(f"Job {job_i} timed out")
                         if (
-                                job_i in time_out_records
-                                and time_out_records[job_i] > timeouts_allowed
+                            job_i in time_out_records
+                            and time_out_records[job_i] > timeouts_allowed
                         ):
                             failed_jobs.append(job_i)
                             print(

@@ -1,39 +1,66 @@
-import sys
-import os
 import argparse
+import os
 import shutil
+import sys
 
 import cv2
 
 
-parser = argparse.ArgumentParser(description = "Folder sorter")
-parser.add_argument('--folder', help="Source folder with images to split")
-parser.add_argument('--classes', nargs='+',
-                    help="Classes we want to split images in")
-parser.add_argument('--save_path', nargs='+',
-                    help="Path where to save an image for each class")
-parser.add_argument('--delete', type=int, default=0,
-                    help="Delete an image after its been processed")
+parser = argparse.ArgumentParser(description="Folder sorter")
+parser.add_argument("--folder", help="Source folder with images to split")
+parser.add_argument("--classes", nargs="+", help="Classes we want to split images in")
+parser.add_argument(
+    "--save_path", nargs="+", help="Path where to save an image for each class"
+)
+parser.add_argument(
+    "--delete", type=int, default=0, help="Delete an image after its been processed"
+)
 arguments = parser.parse_args()
 
 
-russian_letters_space = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
-                         "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
-                         "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
+russian_letters_space = {
+    "а",
+    "б",
+    "в",
+    "г",
+    "д",
+    "е",
+    "ё",
+    "ж",
+    "з",
+    "и",
+    "й",
+    "к",
+    "л",
+    "м",
+    "н",
+    "о",
+    "п",
+    "р",
+    "с",
+    "т",
+    "у",
+    "ф",
+    "х",
+    "ц",
+    "ч",
+    "ш",
+    "щ",
+    "ь",
+    "э",
+    "ю",
+    "я",
+    " ",
+}
 
 
-def relocate_image(
-        path_to_image,
-        class_path,
-        window_name,
-        image_counter
-):
+def relocate_image(path_to_image, class_path, window_name, image_counter):
 
     image_name = os.path.basename(path_to_image)
     original_name = image_name
     rus_letters = set(image_name) & russian_letters_space
     if len(rus_letters) > 0:
-        image_name = "{:05}".format(image_counter) + '.jpg'
+        image_name = "{:05}".format(image_counter) + ".jpg"
         new_path = os.path.join(os.path.split(path_to_image)[0], image_name)
         os.rename(path_to_image, new_path)
         path_to_image = new_path
@@ -60,10 +87,10 @@ def relocate_image(
 
                 shutil.copy(path_to_image, new_path)
             # If Q gets pressed, move on to the next image
-            elif key == ord('q'):
+            elif key == ord("q"):
                 return
             # if D is pressed, delete current image
-            elif key == ord('d'):
+            elif key == ord("d"):
                 if arguments.delete:
                     print(f"Image {image_name} has been deleted")
                     os.remove(path_to_image)
@@ -115,17 +142,20 @@ def main():
 
     # Traverse over all images in the source folder, for each call relocating function
     for index, filename in enumerate(os.listdir(source_folder)):
-        if not any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".JPEG", ".jpeg", ".png", ".PNG"]):
+        if not any(
+            filename.endswith(ext)
+            for ext in [".jpg", ".JPG", ".JPEG", ".jpeg", ".png", ".PNG"]
+        ):
             continue
         relocate_image(
             path_to_image=os.path.join(source_folder, filename),
             class_path=class_save_path,
             window_name=window_name,
-            image_counter=index
+            image_counter=index,
         )
     # Once all images have been processed, exit the script
     print("All images have been processed!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,10 +1,11 @@
-import os
 import argparse
 import itertools
-from typing import Set, List
+import os
+from typing import List
+from typing import Set
 
-import numpy as np
 import cv2
+import numpy as np
 
 
 ALLOWED_EXT = [".jpg", ".png", ".jpeg"]
@@ -13,14 +14,24 @@ AVAILABLE_ALGORITHMS = ["dhash", "humming"]
 
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--folder", nargs="+",
-                        help="Path to a folder with images")
-    parser.add_argument("--remove", default=0, type=int,
-                        help="Remove duplicates or not. Expected 0 or 1")
-    parser.add_argument("--algorithm", default="dhash", type=str,
-                        help="Available algorithms: dhash, humming")
-    parser.add_argument("--humming_thresh", type=float, default=10,
-                        help="Humming distance threshold")
+    parser.add_argument(
+        "-f", "--folder", nargs="+", help="Path to a folder with images"
+    )
+    parser.add_argument(
+        "--remove",
+        default=0,
+        type=int,
+        help="Remove duplicates or not. Expected 0 or 1",
+    )
+    parser.add_argument(
+        "--algorithm",
+        default="dhash",
+        type=str,
+        help="Available algorithms: dhash, humming",
+    )
+    parser.add_argument(
+        "--humming_thresh", type=float, default=10, help="Humming distance threshold"
+    )
     return parser.parse_args()
 
 
@@ -62,10 +73,7 @@ def convert_hash(hash_) -> int:
     return int(np.array(hash_, dtype="float64"))
 
 
-def visualise_similar_images(
-        paths: Set[str],
-        thumbnail_size: int = 400
-) -> None:
+def visualise_similar_images(paths: Set[str], thumbnail_size: int = 400) -> None:
     if len(paths) > 4:
         thumbnail_size = 200
 
@@ -90,8 +98,7 @@ def visualise_similar_images(
 
 
 def generate_hashes_for_images(
-        paths_to_images: List[str],
-        algorithm: str = "dhash"
+    paths_to_images: List[str], algorithm: str = "dhash"
 ) -> dict:
     hashes = dict()
     print("Calculating hashes...")
@@ -100,9 +107,7 @@ def generate_hashes_for_images(
         try:
             image = cv2.imread(path_to_image)
         except Exception as e:
-            print(
-                f"Failed to open: {path_to_image}. Error: {e}. Image skipped"
-            )
+            print(f"Failed to open: {path_to_image}. Error: {e}. Image skipped")
             continue
 
         if algorithm == "dhash":
@@ -140,7 +145,7 @@ def run_humming_algorithm(args, paths_to_images: List[str]) -> None:
     paths_of_similar_images = set()
     hashes = generate_hashes_for_images(paths_to_images, "humming")
 
-    #TODO: Review how you store duplicates. How they are stored together! Wrong
+    # TODO: Review how you store duplicates. How they are stored together! Wrong
     #      You need to assemble similar images together, so you can delete and leave only 1
     #      Using dict with hashes of similar imgs as keys might work
 
@@ -148,7 +153,7 @@ def run_humming_algorithm(args, paths_to_images: List[str]) -> None:
         if len(paths) > 1:
             paths_of_similar_images.update(set(paths))
 
-    #Check for similar images: humming distance between
+    # Check for similar images: humming distance between
     # hashes within the threshold
     for k1, k2 in itertools.combinations(hashes, 2):
         if calculate_hamming_distance(k1, k2) <= args.humming_thresh:
@@ -170,8 +175,9 @@ def run_humming_algorithm(args, paths_to_images: List[str]) -> None:
 def main() -> None:
     args = read_args()
     assert args.humming_thresh >= 0, "Wrong value of hummning distance"
-    assert args.algorithm.lower().strip() in AVAILABLE_ALGORITHMS, \
-                        "Wrong algorithm requested. Available: dhash, humming"
+    assert (
+        args.algorithm.lower().strip() in AVAILABLE_ALGORITHMS
+    ), "Wrong algorithm requested. Available: dhash, humming"
 
     image_paths = []
     for folder in args.folder:

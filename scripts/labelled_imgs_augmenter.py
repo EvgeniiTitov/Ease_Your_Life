@@ -1,25 +1,32 @@
-import os
 import argparse
 import cProfile
-import pstats
 import io
 import multiprocessing
+import os
+import pstats
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Union
 
 import cv2
-from typing import Tuple, Set, Union, List
-import numpy as np
-from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 import imgaug
+import numpy as np
+from imgaug.augmentables.bbs import BoundingBox
+from imgaug.augmentables.bbs import BoundingBoxesOnImage
 
 
 CORE_SATURATION_COEF = 1.2
-AUGMENT_PIPELINE = imgaug.augmenters.Sequential([
-    imgaug.augmenters.Fliplr(p=1.0),
-    imgaug.augmenters.Affine(
-        scale=(0.7, 1.3), rotate=(-90, 90), translate_percent={"x": 0.1}
-    ),
-    imgaug.augmenters.color.ChangeColorTemperature(kelvin=(3500, 12000))
-], random_order=True)
+AUGMENT_PIPELINE = imgaug.augmenters.Sequential(
+    [
+        imgaug.augmenters.Fliplr(p=1.0),
+        imgaug.augmenters.Affine(
+            scale=(0.7, 1.3), rotate=(-90, 90), translate_percent={"x": 0.1}
+        ),
+        imgaug.augmenters.color.ChangeColorTemperature(kelvin=(3500, 12000)),
+    ],
+    random_order=True,
+)
 
 
 def profile(fnc):
@@ -29,22 +36,29 @@ def profile(fnc):
         retval = fnc(*args, **kwargs)
         pr.disable()
         s = io.StringIO()
-        sortby = 'cumulative'
+        sortby = "cumulative"
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         ps.print_stats()
         print(s.getvalue())
         return retval
+
     return inner
 
 
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--folder", required=True,
-                        help="Path to a folder with image-txt pairs")
-    parser.add_argument("-s", "--save_path", required=True,
-                        help="Dir where generated images and txts saved")
-    parser.add_argument("--n", type=int, default=1,
-                        help="Number of new augmented images per original")
+    parser.add_argument(
+        "-f", "--folder", required=True, help="Path to a folder with image-txt pairs"
+    )
+    parser.add_argument(
+        "-s",
+        "--save_path",
+        required=True,
+        help="Dir where generated images and txts saved",
+    )
+    parser.add_argument(
+        "--n", type=int, default=1, help="Number of new augmented images per original"
+    )
     return vars(parser.parse_args())
 
 
@@ -94,15 +108,17 @@ def draw_boxes(image: np.ndarray, boxes: list) -> None:
             left, top, right, bot = box
         cv2.rectangle(image, (left, top), (right, bot), (0, 0, 255), 2)
         cv2.putText(
-            image, f"class: {cls_}", (left, top + 20),
-            cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2
+            image,
+            f"class: {cls_}",
+            (left, top + 20),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            2,
+            (0, 0, 0),
+            2,
         )
 
 
-def convert_darknet_to_human(
-        boxes: List[list],
-        image: np.ndarray
-) -> List[list]:
+def convert_darknet_to_human(boxes: List[list], image: np.ndarray) -> List[list]:
     image_height, image_width = image.shape[:2]
     boxes_out = []
     for box in boxes:
@@ -131,19 +147,18 @@ def convert_human_to_darknet(boxes: List[list], img: np.ndarray) -> List[list]:
         width = round((right - left) / img_w, 6)
         height = round((bot - top) / img_h, 6)
         assert all(
-            (0.0 <= _ <= 1.0
-             for _ in (box_centre_x, box_centre_y, width, height))
+            (0.0 <= _ <= 1.0 for _ in (box_centre_x, box_centre_y, width, height))
         ), "[ERROR]: darknet-style coordinates are not in [0.0, 1.0]"
         out.append([cls_, box_centre_x, box_centre_y, width, height])
     return out
 
 
 def augment_image(
-        image: np.ndarray,
-        boxes: list,
-        n_of_new_imgs: int,
-        max_tries: int = 10,
-        visibility_thresh: float = 0.4
+    image: np.ndarray,
+    boxes: list,
+    n_of_new_imgs: int,
+    max_tries: int = 10,
+    visibility_thresh: float = 0.4,
 ) -> Tuple[list, list]:
     assert max_tries > 0
     aug_images, aug_coords = [], []
@@ -151,14 +166,12 @@ def augment_image(
     while generated < n_of_new_imgs:
         bbs = BoundingBoxesOnImage(
             [
-                BoundingBox(x1=box[1], y1=box[2], x2=box[3],
-                            y2=box[4], label=box[0])
+                BoundingBox(x1=box[1], y1=box[2], x2=box[3], y2=box[4], label=box[0])
                 for box in boxes
             ],
-            shape=image.shape
+            shape=image.shape,
         )
-        aug_image, aug_boxes = AUGMENT_PIPELINE(image=image,
-                                                bounding_boxes=bbs)
+        aug_image, aug_boxes = AUGMENT_PIPELINE(image=image, bounding_boxes=bbs)
         aug_coord = []
         for aug_box in aug_boxes:
             # Check if image happens to be completely out after augmentation
@@ -171,10 +184,15 @@ def augment_image(
             # If only a small part of bb is visible, skip this bb
             if box_area_visible / box_area_total < visibility_thresh:
                 continue
-            aug_coord.append([
-                aug_box.label, aug_box.x1_int, aug_box.y1_int,
-                aug_box.x2_int, aug_box.y2_int
-            ])
+            aug_coord.append(
+                [
+                    aug_box.label,
+                    aug_box.x1_int,
+                    aug_box.y1_int,
+                    aug_box.x2_int,
+                    aug_box.y2_int,
+                ]
+            )
 
         if len(aug_coord):
             aug_images.append(aug_image)
@@ -199,11 +217,11 @@ def split_among_workers(worker_count: int, filenames: List[str]) -> List[list]:
         if i == worker_count:
             yield filenames[start:]
         else:
-            yield filenames[start: per_worker * i]
+            yield filenames[start : per_worker * i]
             start += per_worker
 
 
-#@profile
+# @profile
 def process_batch(args: dict) -> None:
     filenames = args["filenames"]
     img_dir = args["img_dir"]
@@ -213,19 +231,17 @@ def process_batch(args: dict) -> None:
     print(f"Process {pid} spawned. Got {len(filenames)} to augment")
     exceptions = 0
     nb_files = len(filenames)
-    for i, (img_path, txt_path) in enumerate(
-            get_img_txt_pair(filenames, img_dir)
-    ):
-        print(f"Process: {pid}. {i}/{nb_files}. "
-              f"Augmenting image: {os.path.basename(img_path)}")
+    for i, (img_path, txt_path) in enumerate(get_img_txt_pair(filenames, img_dir)):
+        print(
+            f"Process: {pid}. {i}/{nb_files}. "
+            f"Augmenting image: {os.path.basename(img_path)}"
+        )
         success_img, image = read_image(img_path)
         suceess_txt, coords = read_txt_content(txt_path)
         if not all((success_img, suceess_txt)):
             continue
         coords_human = convert_darknet_to_human(coords, image)
-        aug_images, aug_boxes = augment_image(
-            image, coords_human, n_of_new_imgs=n
-        )
+        aug_images, aug_boxes = augment_image(image, coords_human, n_of_new_imgs=n)
         former_name = os.path.splitext(os.path.basename(img_path))[0]
         if len(aug_images):
             for j, (image_, boxes) in enumerate(zip(aug_images, aug_boxes)):
@@ -234,18 +250,17 @@ def process_batch(args: dict) -> None:
                 txt_save_path = os.path.join(save_path, new_name + ".txt")
                 try:
                     # Save image
-                    cv2.imwrite(
-                        os.path.join(save_path, new_name + ".jpg"),
-                        image_
-                    )
+                    cv2.imwrite(os.path.join(save_path, new_name + ".jpg"), image_)
                     # Save txt
                     with open(txt_save_path, "w") as file:
                         for box_darknet in boxes_darknet:
                             file.write(" ".join([str(e) for e in box_darknet]))
                             file.write("\n")
                 except Exception as e:
-                    print(f"[ERROR]: Process: {os.getpid()}. "
-                          f"Failed to save augmented pair img-txt. Error: {e}")
+                    print(
+                        f"[ERROR]: Process: {os.getpid()}. "
+                        f"Failed to save augmented pair img-txt. Error: {e}"
+                    )
                     exceptions += 1
                     continue
     print(f"Process: {pid} finished with {exceptions} exceptions")
@@ -267,7 +282,7 @@ def main():
         "filenames": None,
         "img_dir": args["folder"],
         "save_path": args["save_path"],
-        "n": args["n"]
+        "n": args["n"],
     }
     jobs = []
     for i in range(worker_count):

@@ -1,7 +1,7 @@
 import multiprocessing
-from typing import List
 import os
 import time
+from typing import List
 
 import cv2
 
@@ -11,8 +11,7 @@ class DownSamples:
 
     @staticmethod
     def split_paths_among_cores(
-            paths_to_images: list,
-            nb_of_cpu_cores: int
+        paths_to_images: list, nb_of_cpu_cores: int
     ) -> List[list]:
         images_per_split = len(paths_to_images) // nb_of_cpu_cores
         splits = list()
@@ -45,7 +44,7 @@ class DownSamples:
         return paths
 
     @staticmethod
-    def downsample_images(path_to_images, save_path, height = 1080):
+    def downsample_images(path_to_images, save_path, height=1080):
         for path_to_image in path_to_images:
             try:
                 # open image
@@ -68,7 +67,9 @@ class DownSamples:
 
 def main():
     NEW_HEIGHT = 200
-    path_to_folder = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_RENAMED"
+    path_to_folder = (
+        r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_RENAMED"
+    )
     save_path = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_SMALL"
     paths_to_images = list()
     nb_of_cores = multiprocessing.cpu_count()
@@ -85,7 +86,7 @@ def main():
     for i in range(nb_of_cores):
         process = multiprocessing.Process(
             target=DownSamples.downsample_images,
-            args=(splits[i], save_path, NEW_HEIGHT)
+            args=(splits[i], save_path, NEW_HEIGHT),
         )
         process.start()
         processes.append(process)
@@ -94,8 +95,10 @@ def main():
     for process in processes:
         process.join()
 
-    print(f"All processes successfully joined. "
-          f"Finished in: {round(time.time() - s)} seconds")
+    print(
+        f"All processes successfully joined. "
+        f"Finished in: {round(time.time() - s)} seconds"
+    )
     print("All images have been downsampled and saved to:", save_path)
 
 

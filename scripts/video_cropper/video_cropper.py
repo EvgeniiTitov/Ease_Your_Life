@@ -1,36 +1,34 @@
-import os
 import argparse
 import multiprocessing
+import os
 
 import cv2
 
 
-ALLOWED_EXTS = ['.mp4', '.avi', '.flv']
+ALLOWED_EXTS = [".mp4", ".avi", ".flv"]
 SKIP_FRAMES = 1
 SATURATION_COEF = 1.5
 
 
-'''
-.read() is blocking - is must be calling the C API.
-'''
-
-
-
 def read_args() -> dict:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--folder',
-                        help='Path to a folder containing videos.')
-    parser.add_argument('-v', '--video', help='Path to a video file.')
-    parser.add_argument('--frame', type=int, default=25,
-                        help='Save a frame once in N frames.')
-    parser.add_argument('-s', '--save_path', required=True,
-                        help='Path to the dir where cropped frames get saved')
+    parser.add_argument("-f", "--folder", help="Path to a folder containing videos.")
+    parser.add_argument("-v", "--video", help="Path to a video file.")
+    parser.add_argument(
+        "--frame", type=int, default=25, help="Save a frame once in N frames."
+    )
+    parser.add_argument(
+        "-s",
+        "--save_path",
+        required=True,
+        help="Path to the dir where cropped frames get saved",
+    )
     return vars(parser.parse_args())
 
 
 def crop_frames(args: dict) -> None:
     pid = os.getpid()
-    video_path = args['path_to_video']
+    video_path = args["path_to_video"]
     if args["is_multiprocessing"]:
         print(f"Process {pid} started to process {video_path}")
     cap = cv2.VideoCapture(video_path)
@@ -52,11 +50,9 @@ def crop_frames(args: dict) -> None:
             continue
         if frame_counter % args["every_nth"] == 0:
             cv2.imwrite(
-                os.path.join(
-                    args["save_path"], f"{output_name}_{frame_counter}.jpg"
-                ),
+                os.path.join(args["save_path"], f"{output_name}_{frame_counter}.jpg"),
                 frame,
-                [int(cv2.IMWRITE_JPEG_QUALITY), 100]
+                [int(cv2.IMWRITE_JPEG_QUALITY), 100],
             )
         if frame_counter % 1000 == 0 and frame_counter != 0:
             if args["is_multiprocessing"]:
@@ -79,7 +75,7 @@ def main():
         "path_to_video": str,
         "save_path": save_path,
         "every_nth": every_nth_frame,
-        "is_multiprocessing": bool
+        "is_multiprocessing": bool,
     }
     if args["video"]:
         if not os.path.splitext(args["video"])[-1].lower() in ALLOWED_EXTS:
@@ -96,9 +92,7 @@ def main():
                 print(f"Cannot process file {item}. Incorrect extension")
                 continue
             arguments_copy = arguments.copy()
-            arguments_copy["path_to_video"] = os.path.join(
-                args["folder"], item
-            )
+            arguments_copy["path_to_video"] = os.path.join(args["folder"], item)
             arguments_copy["is_multiprocessing"] = True
             jobs.append(arguments_copy)
         assert len(jobs), "No videos awaiting processing"
@@ -112,5 +106,5 @@ def main():
         print("Done")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

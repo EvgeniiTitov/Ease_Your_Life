@@ -1,9 +1,10 @@
+import argparse
 import os
+from typing import List
+from typing import Tuple
 
 import cv2
-import argparse
 import numpy as np
-from typing import List, Tuple
 
 
 ALLOWED_EXTS = [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]
@@ -62,16 +63,14 @@ def collect_img_txt_pairs(path_to_folder: str) -> Tuple[list, list]:
             continue
 
     assert len(path_to_images) == len(path_to_txts)
-    assert set(os.path.splitext(e)[0] for e in path_to_images) == \
-                            set(os.path.splitext(e)[0] for e in path_to_txts)
+    assert set(os.path.splitext(e)[0] for e in path_to_images) == set(
+        os.path.splitext(e)[0] for e in path_to_txts
+    )
 
     return path_to_images, path_to_txts
 
 
-def visualise_images(
-        path_to_images: List[str],
-        path_to_txts: List[str]
-) -> None:
+def visualise_images(path_to_images: List[str], path_to_txts: List[str]) -> None:
     cv2.namedWindow("", cv2.WINDOW_NORMAL)
     while path_to_images and path_to_txts:
         path_to_image = path_to_images.pop(0)
@@ -91,12 +90,22 @@ def visualise_images(
 
         average_bb_ratio = draw_bb(image, bbs)
         cv2.putText(
-            image, os.path.basename(path_to_image), (50, 50),
-            cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2
+            image,
+            os.path.basename(path_to_image),
+            (50, 50),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            2,
+            (0, 0, 0),
+            2,
         )
         cv2.putText(
-            image, f"Ratio: {round(average_bb_ratio, 3)}",
-            (50, 110), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 0), 2
+            image,
+            f"Ratio: {round(average_bb_ratio, 3)}",
+            (50, 110),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            2,
+            (0, 0, 0),
+            2,
         )
         cv2.imshow("", image)
         cv2.waitKey(0)

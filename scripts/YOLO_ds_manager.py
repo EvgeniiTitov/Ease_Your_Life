@@ -1,32 +1,43 @@
-import os
-import sys
-
-import cv2
 import argparse
+import os
 import random
+import sys
 from collections import defaultdict
 
+import cv2
 
-parser = argparse.ArgumentParser(description = "Dataset manipulations")
-parser.add_argument("-f", '--folder', nargs="+",
-                    help="Path to a folder with images to get modified")
-parser.add_argument("-i", '--image', help="Path to an image to get modified")
-parser.add_argument('--save_path', help="Path where to save modified images")
-parser.add_argument('--ext', help="Changes extension to .jpg")
-parser.add_argument('--name', help="Renames images in ascending order")
-parser.add_argument('--remove_lowres',
-                    help="Removes all images with resolution lower than the threshold")
-parser.add_argument('--fix', help='Fix the naming issue')
-parser.add_argument('--remove_class',
-                    help="Remove class from txt documents to avoid doing it by hand / relabelling data")
-parser.add_argument('--fix_indexes',
-                    help="Fix indexes from 1-2 to 0-1 for YOLO")
-parser.add_argument('--rename_img_txt',
-                    help="Rename both images and txt from a certain number, add to the end of already existing dataset")
-parser.add_argument('--check_balance',
-                    help="Check number of images of each class in the dataset")
-parser.add_argument('--downsample', type=int, default=0,
-                    help="Downsample an image (larger side) to standard 1920/1080 size keeping aspect ratio")
+
+parser = argparse.ArgumentParser(description="Dataset manipulations")
+parser.add_argument(
+    "-f", "--folder", nargs="+", help="Path to a folder with images to get modified"
+)
+parser.add_argument("-i", "--image", help="Path to an image to get modified")
+parser.add_argument("--save_path", help="Path where to save modified images")
+parser.add_argument("--ext", help="Changes extension to .jpg")
+parser.add_argument("--name", help="Renames images in ascending order")
+parser.add_argument(
+    "--remove_lowres",
+    help="Removes all images with resolution lower than the threshold",
+)
+parser.add_argument("--fix", help="Fix the naming issue")
+parser.add_argument(
+    "--remove_class",
+    help="Remove class from txt documents to avoid doing it by hand / relabelling data",
+)
+parser.add_argument("--fix_indexes", help="Fix indexes from 1-2 to 0-1 for YOLO")
+parser.add_argument(
+    "--rename_img_txt",
+    help="Rename both images and txt from a certain number, add to the end of already existing dataset",
+)
+parser.add_argument(
+    "--check_balance", help="Check number of images of each class in the dataset"
+)
+parser.add_argument(
+    "--downsample",
+    type=int,
+    default=0,
+    help="Downsample an image (larger side) to standard 1920/1080 size keeping aspect ratio",
+)
 arguments = parser.parse_args()
 
 
@@ -47,10 +58,7 @@ def generate_empty_txt(folder_with_image: str, save_path: str) -> None:
     return
 
 
-def check_dataset_balance(
-        path_to_folder: str,
-        classes: defaultdict
-) -> defaultdict:
+def check_dataset_balance(path_to_folder: str, classes: defaultdict) -> defaultdict:
     assert isinstance(classes, defaultdict), "Wrong dictionary type!"
 
     for item in os.listdir(path_to_folder):
@@ -77,7 +85,7 @@ def check_dataset_balance(
 def get_images_names(path: str) -> list:
     names = []
     for element in os.listdir(path):
-        if element.endswith('.txt'):
+        if element.endswith(".txt"):
             continue
         names.append(element)
 
@@ -87,8 +95,8 @@ def get_images_names(path: str) -> list:
 def generate_paths_YOLO():
     import random
 
-    relative_path = r'data/train/'
-    #relative_path = '../dataset/images/valid/'
+    relative_path = r"data/obj/"
+    # relative_path = '../dataset/images/valid/'
     source = input("Enter the source of images: ")
     destination = input("Enter the destination TXT file: ")
 
@@ -102,25 +110,22 @@ def generate_paths_YOLO():
     if shuffle.upper().strip() == "Y":
         random.shuffle(images)
 
-    with open(destination, 'w') as f:
+    with open(destination, "w") as f:
         for image in images:
             if relative_path:
-                f.write(os.path.join(relative_path, image) + '\n')
+                f.write(os.path.join(relative_path, image) + "\n")
             else:
                 f.write(image + "\n")
 
     print("Done")
 
 
-def rename_ImgTxt(
-        folders: list,
-        save_path: str,
-        start_index: int = 100_000
-) -> None:
+def rename_ImgTxt(folders: list, save_path: str, start_index: int = 100_000) -> None:
     start = start_index
+
     def rename_txts(txts_to_rename: list, start: int) -> None:
         for txt in txts_to_rename:
-            new_txt_name = '{:05}'.format(start) + ".txt"
+            new_txt_name = "{:05}".format(start) + ".txt"
             os.rename(txt, os.path.join(os.path.split(txt)[0], new_txt_name))
             start += 1
         return
@@ -129,7 +134,7 @@ def rename_ImgTxt(
         txts_to_rename = list()
 
         for filename in os.listdir(folder):
-            if filename.endswith('.txt'):
+            if filename.endswith(".txt"):
                 txts_to_rename.append(os.path.join(folder, filename))
                 continue
 
@@ -137,7 +142,7 @@ def rename_ImgTxt(
                 continue
 
             path_to_img = os.path.join(folder, filename)
-            new_img_name = '{:07}'.format(start_index) + os.path.splitext(filename)[-1]
+            new_img_name = "{:07}".format(start_index) + os.path.splitext(filename)[-1]
             try:
                 os.rename(path_to_img, os.path.join(folder, new_img_name))
             except Exception as e:
@@ -158,27 +163,36 @@ def relocate_img_txt(folders: list, save_path: str, start: int = 3200) -> None:
         for filename in os.listdir(folder):
             if filename.endswith("txt"):
                 paths_to_txts.append(os.path.join(folder, filename))
-            elif any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]):
+            elif any(
+                filename.endswith(ext)
+                for ext in [".jpg", ".JPG", ".png", ".PNG", "jpeg", "JPEG"]
+            ):
                 paths_to_images.append(os.path.join(folder, filename))
             else:
                 continue
 
-        assert len(paths_to_images) == len(paths_to_txts), "Number of images and txts with labels do not match"
+        assert len(paths_to_images) == len(
+            paths_to_txts
+        ), "Number of images and txts with labels do not match"
 
         # Relocate image-txt pairs to a new folder with new names
         while paths_to_images:
             path_to_image = paths_to_images.pop(0)
             path_to_txt = paths_to_txts.pop(0)
-            assert os.path.splitext(os.path.basename(path_to_image))[0] ==\
-                                            os.path.splitext(os.path.basename(path_to_txt))[0], "Something went wrong"
+            assert (
+                os.path.splitext(os.path.basename(path_to_image))[0]
+                == os.path.splitext(os.path.basename(path_to_txt))[0]
+            ), "Something went wrong"
 
-            new_img_name = '{:05}'.format(start) + os.path.splitext(path_to_image)[-1]
-            new_txt_name = '{:05}'.format(start) + ".txt"
+            new_img_name = "{:05}".format(start) + os.path.splitext(path_to_image)[-1]
+            new_txt_name = "{:05}".format(start) + ".txt"
             try:
                 os.rename(path_to_image, os.path.join(save_path, new_img_name))
                 os.rename(path_to_txt, os.path.join(save_path, new_txt_name))
             except Exception as e:
-                print(f"Failed while renaming: {path_to_image} and {path_to_txt}. Error: {e}. Skipped")
+                print(
+                    f"Failed while renaming: {path_to_image} and {path_to_txt}. Error: {e}. Skipped"
+                )
                 continue
             start += 1
 
@@ -190,25 +204,54 @@ def rename_txts(path_to_folder: str, save_path: str, start: int = 0) -> None:
         if not filename.endswith("txt"):
             continue
         path_to_txt = os.path.join(path_to_folder, filename)
-        new_name = '{:05}'.format(start) + ".txt"
+        new_name = "{:05}".format(start) + ".txt"
 
     return
 
 
 def replace_rus_letters(images) -> None:
-    rus_letters = {"а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и",
-                   "й", "к", "л", "м", "н", "о", "п", "р", "с", "т",
-                   "у", "ф", "х", "ц", "ч", "ш", "щ", "ь", "э", "ю", "я", " "}
+    rus_letters = {
+        "а",
+        "б",
+        "в",
+        "г",
+        "д",
+        "е",
+        "ё",
+        "ж",
+        "з",
+        "и",
+        "й",
+        "к",
+        "л",
+        "м",
+        "н",
+        "о",
+        "п",
+        "р",
+        "с",
+        "т",
+        "у",
+        "ф",
+        "х",
+        "ц",
+        "ч",
+        "ш",
+        "щ",
+        "ь",
+        "э",
+        "ю",
+        "я",
+        " ",
+    }
 
-    images_to_rename = [
-        path for path in images if len(rus_letters & set(path)) > 0
-    ]
+    images_to_rename = [path for path in images if len(rus_letters & set(path)) > 0]
     print(f"Found {len(images_to_rename)} images with russian letters in them")
     for image in images_to_rename:
         path_to_folder = os.path.split(image)[0]
         os.rename(
             image,
-            os.path.join(path_to_folder, str(random.randint(1, 10**6)) +'.jpg')
+            os.path.join(path_to_folder, str(random.randint(1, 10 ** 6)) + ".jpg"),
         )
 
     return
@@ -217,20 +260,21 @@ def replace_rus_letters(images) -> None:
 def change_class_value(folders) -> None:
     for folder in folders:
         for item in os.listdir(folder):
-            if not item.endswith('.txt'):
+            if not item.endswith(".txt"):
                 continue
             path_to_txt = os.path.join(folder, item)
-            path_to_tmp_txt = os.path.join(folder, 'temporary.txt')
-            with open(path_to_txt, "r") as data_file, \
-                    open(path_to_tmp_txt, "w") as temporary_file:
+            path_to_tmp_txt = os.path.join(folder, "temporary.txt")
+            with open(path_to_txt, "r") as data_file, open(
+                path_to_tmp_txt, "w"
+            ) as temporary_file:
                 for line in data_file:
                     items = line.split()
-                    if items[0] == '1':
-                        items[0] = '0'
-                        temporary_file.write(' '.join(items) + '\n')
-                    elif items[0] == '2':
-                        items[0] = '1'
-                        temporary_file.write(' '.join(items) + '\n')
+                    if items[0] == "1":
+                        items[0] = "0"
+                        temporary_file.write(" ".join(items) + "\n")
+                    elif items[0] == "2":
+                        items[0] = "1"
+                        temporary_file.write(" ".join(items) + "\n")
 
             os.remove(path_to_txt)
             os.rename(path_to_tmp_txt, path_to_txt)
@@ -241,20 +285,27 @@ def change_class_value(folders) -> None:
 def remove_class(folders) -> None:
     for folder in folders:
         for item in os.listdir(folder):
-            if not item.endswith('.txt'):
+            if not item.endswith(".txt"):
                 continue
             path_to_txt = os.path.join(folder, item)
-            path_to_tmp_txt = os.path.join(folder, 'temporary.txt')
+            path_to_tmp_txt = os.path.join(folder, "temporary.txt")
 
             # Open txt file to read its content, create a temporary txt file to write the content excluding a certain class.
-            with open(path_to_txt, "r") as data_file,\
-                        open(path_to_tmp_txt, "w") as temporary_file:
+            with open(path_to_txt, "r") as data_file, open(
+                path_to_tmp_txt, "w"
+            ) as temporary_file:
                 for line in data_file:
-                    class_, coordinate1, coordinate2, coordinate3, coordinate4 = line.split()
+                    (
+                        class_,
+                        coordinate1,
+                        coordinate2,
+                        coordinate3,
+                        coordinate4,
+                    ) = line.split()
                     # We want to exclude class 0 - poles, to skip these lines
-                    if class_ == '1':
+                    if class_ == "1":
                         continue
-                    elif class_ == '2':
+                    elif class_ == "2":
                         continue
                     temporary_file.write(line)
 
@@ -298,20 +349,22 @@ def perform_modifications(images: list, save_path: str) -> None:
             try:
                 image = cv2.resize(image, dsize=(new_width, new_height))
             except Exception as e:
-                print(f"Failed to downsample the image: {path_to_image} to new size: {(new_width, new_height)}. "
-                      f"Error: {e}")
+                print(
+                    f"Failed to downsample the image: {path_to_image} to new size: {(new_width, new_height)}. "
+                    f"Error: {e}"
+                )
                 continue
 
         image_name = os.path.basename(path_to_image)
         # Change name
         if arguments.name:
-            image_name = '{:05}'.format(index) + os.path.splitext(path_to_image)[-1]
+            image_name = "{:05}".format(index) + os.path.splitext(path_to_image)[-1]
 
         # Change extension
         if arguments.ext:
-            if not os.path.splitext(path_to_image)[-1].lower()  == ".jpg":
+            if not os.path.splitext(path_to_image)[-1].lower() == ".jpg":
                 img_name = os.path.splitext(image_name)[0]
-                image_name = img_name + '.jpg'
+                image_name = img_name + ".jpg"
 
         # Save modified image
         try:
@@ -324,13 +377,16 @@ def perform_modifications(images: list, save_path: str) -> None:
 
 
 def collect_all_images(folder: str, images: list) -> tuple:
-    '''
+    """
     Recursively collect images in a folder and store them in a list. Return the list then.
-    '''
+    """
     exception = 0
     for filename in os.listdir(folder):
         filename_path = os.path.join(folder, filename)
-        if any(filename.endswith(ext) for ext in [".jpg", ".JPG", ".png", ".PNG", ".jpeg", ".JPEG"]):
+        if any(
+            filename.endswith(ext)
+            for ext in [".jpg", ".JPG", ".png", ".PNG", ".jpeg", ".JPEG"]
+        ):
             images.append(filename_path)
         elif os.path.isdir(filename_path):
             try:
@@ -366,7 +422,7 @@ def main():
 
         # Launch renaming TXTs and IMGs function and exit upon completion
         if arguments.rename_img_txt:
-            #rename_ImgTxt(arguments.folder, arguments.save_path)
+            # rename_ImgTxt(arguments.folder, arguments.save_path)
             relocate_img_txt(arguments.folder, arguments.save_path)
             sys.exit()
 
@@ -388,15 +444,21 @@ def main():
                     print(f"\n{folder} is not a folder!")
                     continue
                 _, exceptions_ = collect_all_images(folder, images_to_modify)
-            print(f"Total of {len(images_to_modify)} images have been detected and will be modified.")
+            print(
+                f"Total of {len(images_to_modify)} images have been detected and will be modified."
+            )
 
         # Option 2: If only one folder provided - find all images in it including subfolders etc.
         elif len(arguments.folder) == 1:
             if not os.path.isdir(arguments.folder[0]):  # nargs returns a list
                 print("What you've provided is not a folder")
                 sys.exit()
-            images_to_modify, exceptions = collect_all_images(arguments.folder[0], images_to_modify)
-            print(f"All {len(images_to_modify)} images have been collected with {exceptions} exceptions")
+            images_to_modify, exceptions = collect_all_images(
+                arguments.folder[0], images_to_modify
+            )
+            print(
+                f"All {len(images_to_modify)} images have been collected with {exceptions} exceptions"
+            )
 
         # Check if any images have been collected
         if not images_to_modify:
@@ -429,5 +491,6 @@ def main():
 
     perform_modifications(images_to_modify, save_path)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     main()

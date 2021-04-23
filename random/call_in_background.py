@@ -1,13 +1,13 @@
+import random
 import threading
+import time
 from queue import Queue
 from typing import *
-import time
-import random
 
 
-'''
+"""
 Try downloading your dfs this way? Might help. Try async for f sake
-'''
+"""
 
 
 def timer(func: Callable) -> Callable:
@@ -16,6 +16,7 @@ def timer(func: Callable) -> Callable:
         result = func(*args, **kwargs)
         print("Execution time:", time.perf_counter() - t1)
         return result
+
     return wrapper
 
 
@@ -27,10 +28,7 @@ def download_dataframe(df_lenght):
 
 def run_in_background(func: Callable, *args, **kwargs):
     q = Queue(maxsize=1)
-    t = threading.Thread(
-        target=lambda: q.put(func(*args, **kwargs)),
-        daemon=True
-    )
+    t = threading.Thread(target=lambda: q.put(func(*args, **kwargs)), daemon=True)
     t.start()
     return q
 

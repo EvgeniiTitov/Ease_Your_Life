@@ -1,6 +1,6 @@
-import os
 import argparse
 import multiprocessing
+import os
 import sys
 
 import cv2
@@ -12,10 +12,16 @@ SATURATION_COEF = 1.2
 
 def read_args() -> dict:
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--videos", required=True, type=str,
-                        help="Path to a video(s) to crop")
-    parser.add_argument("-s", "--save_path", default="", type=str,
-                        help="Path where results will be saved")
+    parser.add_argument(
+        "-v", "--videos", required=True, type=str, help="Path to a video(s) to crop"
+    )
+    parser.add_argument(
+        "-s",
+        "--save_path",
+        default="",
+        type=str,
+        help="Path where results will be saved",
+    )
     return vars(parser.parse_args())
 
 
@@ -25,14 +31,12 @@ def process_video(args: dict) -> None:
 
     sections_to_crop = args["time_sections"]
     if not len(sections_to_crop):
-        print(f"[WARNING]: Process {pid} didn't get any "
-              f"time sections to slice")
+        print(f"[WARNING]: Process {pid} didn't get any " f"time sections to slice")
         sys.exit()
 
     path_to_video = args["video"]
     cap = cv2.VideoCapture(path_to_video)
-    assert cap.isOpened(), f"[ERROR]: Process {pid} " \
-                           f"failed to open {path_to_video}"
+    assert cap.isOpened(), f"[ERROR]: Process {pid} " f"failed to open {path_to_video}"
     fps = int(cap.get(cv2.CAP_PROP_FPS))
     frame_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -52,8 +56,7 @@ def process_video(args: dict) -> None:
         if frames_passed == fps:
             seconds_passed += 1
             if seconds_passed % 100 == 0 and seconds_passed != 0:
-                print(f"[INFO]: Process {pid} processed "
-                      f"{seconds_passed} seconds")
+                print(f"[INFO]: Process {pid} processed " f"{seconds_passed} seconds")
             frames_passed = 0
 
         start, end = tracking_ad
@@ -155,7 +158,7 @@ def main() -> None:
             (16 * 60 + 40, 32 * 60 + 40),
             (36 * 60 + 50, 50 * 60 + 20),
             (37 * 60 + 50, 44 * 60 + 40),
-        ]
+        ],
     }
     jobs = []
     for video_name in os.listdir(args["videos"]):
@@ -163,11 +166,13 @@ def main() -> None:
         if video_time_sections is None:
             print("[WARNING]: no time sections for video:", video_name)
             continue
-        jobs.append({
-            "video": os.path.join(args["videos"], video_name),
-            "time_sections": video_time_sections,
-            "save_path": args["save_path"]
-        })
+        jobs.append(
+            {
+                "video": os.path.join(args["videos"], video_name),
+                "time_sections": video_time_sections,
+                "save_path": args["save_path"],
+            }
+        )
     cores = multiprocessing.cpu_count()
     workers = int(cores * SATURATION_COEF)
     if workers > len(jobs):

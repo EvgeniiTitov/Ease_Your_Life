@@ -1,8 +1,9 @@
-import os
-import cv2
 import argparse
-import requests
+import os
 import time
+
+import cv2
+import requests
 
 
 URL_ENDPOINT = r"https://api.cognitive.microsoft.com/bing/v7.0/images/search"
@@ -12,10 +13,17 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Webscraping with Bing API")
     parser.add_argument("-q", "--query", required=True, help="Search query")
     parser.add_argument("-k", "--key", required=True, help="API key")
-    parser.add_argument("--save_path", default=r"C:\Users\Evgenii\Downloads\scraping",
-                        help="Path to where results will be saved")
-    parser.add_argument("--max_results", type=int, default=200,
-                        help="Total number of images that will be downloaded")
+    parser.add_argument(
+        "--save_path",
+        default=r"C:\Users\Evgenii\Downloads\scraping",
+        help="Path to where results will be saved",
+    )
+    parser.add_argument(
+        "--max_results",
+        type=int,
+        default=200,
+        help="Total number of images that will be downloaded",
+    )
     parser.add_argument("--group_size", type=int, default=50, help="Offset size")
     arguments = parser.parse_args()
 
@@ -35,7 +43,7 @@ def download_batch_of_images(results: dict, save_path: str, total: int) -> int:
             print("Fetching:", v["contentUrl"])
             result = requests.get(v["contentUrl"], timeout=30)
 
-            ext = v["contentUrl"][v["contentUrl"].rfind("."):]
+            ext = v["contentUrl"][v["contentUrl"].rfind(".") :]
             path = os.path.sep.join(
                 [save_path, "{}{}".format(str(total).zfill(8), ext)]
             )
@@ -56,11 +64,7 @@ def download_batch_of_images(results: dict, save_path: str, total: int) -> int:
 
 
 def execute_request(
-        headers: dict,
-        params: dict,
-        save_path: str,
-        max_results: int,
-        group_size: int
+    headers: dict, params: dict, save_path: str, max_results: int, group_size: int
 ) -> None:
     search = requests.get(URL_ENDPOINT, headers=headers, params=params)
     search.raise_for_status()
@@ -74,14 +78,18 @@ def execute_request(
     for offset in range(0, esimated_nb_results, group_size):
         # using the current offset update the search parameters,
         # make a request to fetch the results
-        print(f"\nRequesting group {offset}-{offset + group_size} "
-              f"of {esimated_nb_results}...")
+        print(
+            f"\nRequesting group {offset}-{offset + group_size} "
+            f"of {esimated_nb_results}..."
+        )
         params["offset"] = offset
         search = requests.get(URL_ENDPOINT, headers=headers, params=params)
         search.raise_for_status()
         results = search.json()
-        print(f"\nSaving images for group {offset}-{offset + group_size} "
-              f"of {esimated_nb_results}...")
+        print(
+            f"\nSaving images for group {offset}-{offset + group_size} "
+            f"of {esimated_nb_results}..."
+        )
         total_downloaded = download_batch_of_images(
             results, save_path, total_downloaded
         )
@@ -97,14 +105,14 @@ def main():
         os.mkdir(save_path)
 
     assert 0 < args.max_results <= 1000, "Wrong value of max results. Expected 1 - 1000"
-    assert 0 < args.group_size < args.max_results, "Wrong value of group size. Expected: 1 - max_results"
+    assert (
+        0 < args.group_size < args.max_results
+    ), "Wrong value of group size. Expected: 1 - max_results"
 
     print("\nSEARCHING IMAGES FOR QUERY:", query)
     headers = {"Ocp-Apim-Subscription-Key": args.key}
     params = {"q": query, "offset": 0, "count": args.group_size}
-    execute_request(
-        headers, params, save_path, args.max_results, args.group_size
-    )
+    execute_request(headers, params, save_path, args.max_results, args.group_size)
 
 
 if __name__ == "__main__":

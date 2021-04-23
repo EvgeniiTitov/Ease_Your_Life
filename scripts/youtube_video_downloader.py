@@ -1,17 +1,22 @@
-from pytube import YouTube
-from typing import List
-import cv2
 import argparse
 import os
-import sys
+from typing import List
+
+from pytube import YouTube
 
 
-def read_args():
+def read_args() -> dict:
     parser = argparse.ArgumentParser()
-    parser.add_argument("urls", nargs="+", help="Path to video(s) to download")
-    parser.add_argument("--save_path", default=r"D:\Desktop\SIngleView\raw_data\paknsave\videos_youtube\stickman",
-                        help="Path where results will be saved")
-    return parser.parse_args()
+    parser.add_argument(
+        "--urls", nargs="+", required=True, help="Path to video(s) to download"
+    )
+    parser.add_argument(
+        "--save_path",
+        type=str,
+        default=r"D:\SingleView\SpotIQ\tests\BATCH3\test_videos",
+        help="Path where results will be saved",
+    )
+    return vars(parser.parse_args())
 
 
 def download_videos(links: List[str], save_path: str) -> None:
@@ -19,7 +24,10 @@ def download_videos(links: List[str], save_path: str) -> None:
         try:
             downloader = YouTube(url=link)
         except Exception as e:
-            print(f"Failed to instantiate YouTube class for the link: {link}. Error: {e}")
+            print(
+                f"Failed to instantiate YouTube class for the link: {link}. "
+                f"Error: {e}"
+            )
             continue
 
         print("\nAvailable video resolutions for downloading are:")
@@ -30,7 +38,7 @@ def download_videos(links: List[str], save_path: str) -> None:
         try:
             input_ = int(input_)
         except Exception as e:
-            print(f"Failed to convert user input to int. Int expected. Error: {e}")
+            print(f"Failed to convert user input to int. Int expected. " f"Error: {e}")
             continue
 
         try:
@@ -44,15 +52,18 @@ def download_videos(links: List[str], save_path: str) -> None:
 def main():
     # Parse args
     args = read_args()
-
-    if not os.path.exists(args.save_path):
+    print("SAVE PATH:", args["save_path"])
+    if not os.path.exists(args["save_path"]):
         try:
-            os.mkdir(args.save_path)
+            os.mkdir(args["save_path"])
         except Exception as e:
-            print(f"Failed while creating a directory to save downloaded videos. Error: {e}")
+            print(
+                f"Failed while creating a directory to save downloaded videos. "
+                f"Error: {e}"
+            )
             raise e
 
-    download_videos(args.urls, args.save_path)
+    download_videos(args["urls"], args["save_path"])
 
 
 if __name__ == "__main__":

@@ -1,12 +1,13 @@
-import os
 import argparse
+import os
 from typing import Tuple
 
 
 def read_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--folder", type=str, required=True,
-                        help="Path to a dataset folder")
+    parser.add_argument(
+        "-f", "--folder", type=str, required=True, help="Path to a dataset folder"
+    )
     return vars(parser.parse_args())
 
 

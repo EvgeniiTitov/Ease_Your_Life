@@ -6,10 +6,14 @@ import ffmpeg
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--video", required=True, type=str,
-                        help="path to video to convert")
-    parser.add_argument("--save_path", default=r"D:\Desktop\SIngleView",
-                        help="Path where converted video will be saved")
+    parser.add_argument(
+        "--video", required=True, type=str, help="path to video to convert"
+    )
+    parser.add_argument(
+        "--save_path",
+        default=r"D:\Desktop\SIngleView",
+        help="Path where converted video will be saved",
+    )
     arguments = parser.parse_args()
 
     return arguments
@@ -23,8 +27,7 @@ def main() -> None:
     video_name = os.path.splitext(os.path.basename(args.video))[0]
     stream = ffmpeg.input(filename=args.video)
     stream = ffmpeg.output(
-        stream,
-        os.path.join(args.save_path, video_name + "_converted.mp4")
+        stream, os.path.join(args.save_path, video_name + "_converted.mp4")
     )
     ffmpeg.run(stream)
 

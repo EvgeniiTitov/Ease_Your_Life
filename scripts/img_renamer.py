@@ -1,8 +1,8 @@
 import multiprocessing
-from typing import List
 import os
-import time
 import shutil
+import time
+from typing import List
 
 from .img_downsampler import DownSamples
 
@@ -12,8 +12,7 @@ class Renamer:
 
     @staticmethod
     def split_paths_among_cores_and_generate_new_names(
-            paths_to_images: list,
-            nb_of_cpu_cores: int
+        paths_to_images: list, nb_of_cpu_cores: int
     ) -> List[List[tuple]]:
         images_per_split = len(paths_to_images) // nb_of_cpu_cores
         splits = list()
@@ -43,7 +42,7 @@ class Renamer:
             try:
                 new_name = os.path.join(save_path, str(name) + ".jpg")
                 # Rename
-                #os.rename(path_to_image, new_name)
+                # os.rename(path_to_image, new_name)
                 # Copy
                 shutil.copy(path_to_image, new_name)
             except:
@@ -51,7 +50,9 @@ class Renamer:
 
 
 def main():
-    path_to_folder = r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_RENAMED"
+    path_to_folder = (
+        r"D:\Desktop\Reserve_NNs\Datasets\random_images\DOWNSAMPLED_RENAMED"
+    )
     save_path = r"D:\Desktop\Reserve_NNs\Datasets\random_images\yolo"
     paths_to_images = list()
     nb_of_cores = multiprocessing.cpu_count()
@@ -67,8 +68,7 @@ def main():
     s = time.time()
     for i in range(nb_of_cores):
         process = multiprocessing.Process(
-            target=Renamer.rename_images,
-            args=(splits[i], save_path)
+            target=Renamer.rename_images, args=(splits[i], save_path)
         )
         process.start()
         processes.append(process)
@@ -77,8 +77,10 @@ def main():
     for process in processes:
         process.join()
 
-    print(f"All processes successfully joined. "
-          f"Finished in: {round(time.time() - s)} seconds")
+    print(
+        f"All processes successfully joined. "
+        f"Finished in: {round(time.time() - s)} seconds"
+    )
     print("All images have been renamed and saved to:", save_path)
 
 
